@@ -143,3 +143,4 @@ gdzie N jest numerem grupy, a ab123456, cd123456, ef123456 są identyfikatorami
 członków zespołu umieszczającego to rozwiązanie. Katalog z rozwiązaniem nie
 powinien zawierać innych plików. Nie wolno umieszczać w repozytorium plików
 dużych, binarnych, tymczasowych (np. *.o) ani innych zbędnych.
+ 
