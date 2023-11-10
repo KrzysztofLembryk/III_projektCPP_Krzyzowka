@@ -61,7 +61,7 @@ private:
 public:
     // Constructors:
     Word() = delete;
-    
+
     Word(size_t x, size_t y, orientation_t orient, string _word) : posAndOrient(x, y, orient)
     {
         // need to check rvalues in second assignment
@@ -72,6 +72,7 @@ public:
     }
 
     // Destructors:
+    ~Word() = default;
 
     // Getters:
     pos_t const &get_start_position()
