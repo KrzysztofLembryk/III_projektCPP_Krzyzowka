@@ -18,7 +18,9 @@ enum orientation_t : bool
 
 namespace
 {
-
+    /**
+     * 
+    */
     class WordPos
     {
     private:
@@ -45,7 +47,14 @@ private:
 
 public:
     Word() = delete;
-    Word(size_t x, size_t y, orientation_t orient, string _word) : pos(x, y, orient), word(_word) {}
+    Word(size_t x, size_t y, orientation_t orient, string _word) : pos(x, y, orient) 
+    {
+        // need to check rvalues in second assignment
+        if(_word.empty())
+            word = "?";
+        else
+            word = _word;
+    }
 };
 
 int main()
