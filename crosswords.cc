@@ -1,5 +1,7 @@
 #include <iostream>
 // #include <utility>
+#include <typeinfo>
+#include <stdexcept>
 
 using std::cerr;
 using std::cin;
@@ -19,8 +21,8 @@ enum orientation_t : bool
 namespace
 {
     /**
-     * 
-    */
+     *
+     */
     class WordPos
     {
     private:
@@ -35,6 +37,17 @@ namespace
 
         // Destructors:
         ~WordPos() = default;
+
+        // Getters:
+        // we return const reference not to allow to change these values
+        pos_t const &getPos()
+        {
+            return pos;
+        }
+        orientation_t const &getOrient()
+        {
+            return orient;
+        }
     };
 
 }
@@ -42,23 +55,64 @@ namespace
 class Word
 {
 private:
-    WordPos pos;
+    WordPos posAndOrient;
     string word;
 
 public:
+    // Constructors:
     Word() = delete;
-    Word(size_t x, size_t y, orientation_t orient, string _word) : pos(x, y, orient) 
+    
+    Word(size_t x, size_t y, orientation_t orient, string _word) : posAndOrient(x, y, orient)
     {
         // need to check rvalues in second assignment
-        if(_word.empty())
+        if (_word.empty())
             word = "?";
         else
             word = _word;
+    }
+
+    // Destructors:
+
+    // Getters:
+    pos_t const &get_start_position()
+    {
+        return posAndOrient.getPos();
+    }
+
+    pos_t get_end_position()
+    {
+        pos_t p = posAndOrient.getPos();
+
+        if (posAndOrient.getOrient() == H)
+        {
+            // pos_t endPos(p.first + word.size(), p.second);
+            return pos_t(p.first + word.size(), p.second);
+        }
+        else
+            return pos_t(p.first, p.second + word.size());
+    }
+
+    orientation_t get_orientation()
+    {
+        return posAndOrient.getOrient();
+    }
+
+    char at(size_t idx)
+    {
+        if (idx < word.size())
+            return word[idx];
+        throw std::invalid_argument("Word - at(idx) - given idx is out of bounds\n");
+    }
+
+    size_t length()
+    {
+        return word.size();
     }
 };
 
 int main()
 {
     cout << "ciul\n";
+
     return 0;
 }
