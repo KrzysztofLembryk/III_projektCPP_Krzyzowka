@@ -1,6 +1,7 @@
 #ifndef III_PROJEKTCPP_KRZYZOWKA_CROSSWORD_H
 #define III_PROJEKTCPP_KRZYZOWKA_CROSSWORD_H
 
+#include <map>
 #include <vector>
 #include <iostream>
 
@@ -18,28 +19,27 @@ namespace
     class WordPos
     {
     private:
-        pos_t pos;
-        orientation_t orient;
+        pos_t m_pos;
+        orientation_t m_orient;
 
     public:
         // Constructors:
-        WordPos() = delete;
-        WordPos(size_t x, size_t y, orientation_t _orient)
-            : pos(x, y), orient(_orient)
+        inline WordPos() = delete;
+        inline WordPos(size_t x, size_t y, orientation_t _orient)
+            : m_pos(x, y), m_orient(_orient)
         {
         }
-        WordPos(pos_t p, orientation_t o)
-            : pos(p), orient(o)
+        inline WordPos(pos_t p, orientation_t o)
+            : m_pos(p), m_orient(o)
         {
         }
 
         // Destructors:
-        ~WordPos() = default;
+        inline ~WordPos() = default;
 
         // Getters:
-        // we return const reference not to allow to change these values
-        pos_t const &getPos() { return pos; }
-        orientation_t const &getOrient() { return orient; }
+        inline pos_t getPos() const { return m_pos; }
+        inline orientation_t getOrient() const { return m_orient; }
 
     };
 }
@@ -47,23 +47,25 @@ namespace
 class Word
 {
 private:
-    WordPos posAndOrient;
-    std::string word;
+    WordPos m_posAndOrient;
+    std::string m_word;
 
 public:
     // Constructors:
     Word() = delete;
-    Word(size_t x, size_t y, orientation_t orient, const std::string& _word);
+    Word(size_t x, size_t y, orientation_t orient, const std::string& word);
 
     // Destructors:
-    ~Word() = default;
+    inline ~Word() = default;
 
     // Getters:
-    pos_t const &get_start_position();
-    pos_t get_end_position();
-    orientation_t get_orientation();
-    char at(size_t idx);
-    size_t length();
+    pos_t get_start_position() const;
+    pos_t get_end_position() const;
+    orientation_t get_orientation() const;
+    char at(size_t idx) const;
+    size_t length() const;
+    size_t getX() const;
+    size_t getY() const;
 
 };
 
@@ -77,17 +79,18 @@ class Crossword
 private:
     std::vector<Word> m_words;
     RectArea m_rectArea;
+    std::map<pos_t, std::pair<orientation_t, char>> m_points;
 
 public:
     // Constructors:
     Crossword() = delete;
-    Crossword(const Word& word);
+    Crossword(const Crossword& other);
+    Crossword(Crossword&& other) noexcept;
+    explicit Crossword(const Word& word);
     Crossword(const Word& firstWord, const std::vector<Word>& words);
-    Crossword(Word&& word) noexcept;
-    Crossword(Word&& firstWord, std::vector<Word>&& words) noexcept;
 
     // Destructors:
-    ~Crossword() = default;
+    inline ~Crossword() = default;
 
     void insert_word(const Word& word);
 
@@ -96,14 +99,14 @@ public:
     dim_t word_count() const;
 
     // Operators:
-    Crossword& operator=(const Crossword& other);
-    Crossword& operator=(Crossword&& other) noexcept ;
-    Crossword operator+(const Crossword& other);
-    Crossword operator+=(const Crossword& crossword);
+    Crossword& operator=(const Crossword& other) = default;
+    Crossword& operator=(Crossword&& other) noexcept;
+    Crossword operator+(const Crossword& other) const;
+    Crossword operator+=(const Crossword& other) const;
     friend std::ostream& operator<<(std::ostream& out, const Crossword& crossword);
 
 private:
-    bool colides(const Word& word);
+    bool collides(const Word& word) const;
 
 };
 
