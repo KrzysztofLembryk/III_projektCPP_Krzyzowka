@@ -101,6 +101,7 @@ private:
     pos_t areaSize;
 
     pos_t calcArea();
+    bool isInside(pos_t);
 public:
     RectArea();
     RectArea(pos_t _topLeft, pos_t _bottomRight);
@@ -116,10 +117,10 @@ public:
     const RectArea operator*(const RectArea &rhs) const;
 
     // Getters:
-    pos_t get_left_top();
-    pos_t get_right_bottom();
-    size_t size();
-    bool empty();
+    pos_t get_left_top() const;
+    pos_t get_right_bottom() const;
+    pos_t size() const;
+    bool empty() const;
 
     // Setters:
     void set_left_top(pos_t);

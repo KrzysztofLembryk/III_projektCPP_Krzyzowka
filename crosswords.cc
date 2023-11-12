@@ -38,6 +38,7 @@ namespace
     {
         return orient;
     }
+
 }
 
 // -----WORD CLASS-----
@@ -152,6 +153,44 @@ RectArea &RectArea::operator=(RectArea &&rhs)
     return *this;
 }
 
+// Getters:
+pos_t RectArea::get_left_top() const
+{
+    return topLeft;
+}
+
+pos_t RectArea::get_right_bottom() const
+{
+    return bottomRight;
+}
+
+pos_t RectArea::size() const
+{
+    return areaSize;
+}
+
+bool RectArea::empty() const
+{
+    return areaSize == pos_t(0, 0);
+}
+
+// Setters:
+void RectArea::set_left_top(pos_t p)
+{
+    topLeft = p;
+    areaSize = calcArea();
+}
+
+void RectArea::set_right_bottom(pos_t p)
+{
+    bottomRight = p;
+    areaSize = calcArea();
+}
+
+void RectArea::embrace(pos_t p)
+{
+
+}
 
 
 
