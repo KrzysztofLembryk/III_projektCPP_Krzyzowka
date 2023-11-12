@@ -27,7 +27,8 @@ namespace
     constexpr char NOT_A_LETTER = '?';
     // constexpr string DEFAULT_STRING("?");
 
-    // WordPos methods:
+    // -----WORD_POS CLASS-----
+    
     pos_t WordPos::getPos() const
     {
         return pos;
@@ -102,7 +103,11 @@ size_t Word::length() const
         return word.size();
 }
 
+// -----RECT_AREA CLASS-----
 
+
+
+// -----CROSSWORD CLASS-----
 Crossword::Crossword(const Word &word)
 {
         m_words.push_back(word);

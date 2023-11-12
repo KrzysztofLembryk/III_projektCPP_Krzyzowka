@@ -25,15 +25,15 @@ namespace
         // Constructors:
         WordPos() = delete;
 
-        WordPos(size_t x, size_t y, orientation_t _orient) : pos(x, y), 
-        orient(_orient) {}
+        WordPos(size_t x, size_t y, orientation_t _orient) : pos(x, y),
+                                                             orient(_orient) {}
         WordPos(pos_t const &p, orientation_t const &o) : pos(p), orient(o) {}
 
         // Copy constructor:
-        WordPos(const WordPos &w) = default;//: pos(w.pos), orient(w.orient) {}
+        WordPos(const WordPos &w) = default; //: pos(w.pos), orient(w.orient) {}
 
         // Move Constructor:
-        WordPos(WordPos &&w) = default;//: pos(move(w.pos)), orient(move(w.orient)) {}
+        WordPos(WordPos &&w) = default; //: pos(move(w.pos)), orient(move(w.orient)) {}
 
         // Destructors:
         ~WordPos() = default;
@@ -42,7 +42,7 @@ namespace
         WordPos &operator=(const WordPos &rhs) = default;
         WordPos &operator=(WordPos &&rhs) = default;
         auto operator<=>(const WordPos &) const = default;
-        
+
         // Getters:
         // we return const reference not to allow to change these values
         pos_t getPos() const;
@@ -64,11 +64,11 @@ public:
     Word(size_t x, size_t y, orientation_t orient, std::string const &_word);
 
     // Copy constructor:
-    Word(const Word &other); //: posAndOrient(other.posAndOrient), 
+    Word(const Word &other); //: posAndOrient(other.posAndOrient),
     //    word(other.word) {}
 
     // Move construcotr:
-    Word(Word &&other); //: posAndOrient(move(other.posAndOrient)), 
+    Word(Word &&other); //: posAndOrient(move(other.posAndOrient)),
     //    word(move(other.word)) {}
 
     // Destructors:
@@ -92,13 +92,40 @@ public:
     char at(size_t idx) const;
 
     size_t length() const;
-
-    void print();
 };
 
 class RectArea
 {
+private:
+    pos_t topLeft, bottomRight;
+    pos_t areaSize;
 
+public:
+    RectArea();
+    RectArea(pos_t _topLeft, pos_t _bottomRight);
+    RectArea(const RectArea &);
+    RectArea(RectArea&&);
+
+    ~RectArea();
+
+    RectArea &operator=(const RectArea &);
+    RectArea &operator=(RectArea &&);
+
+    RectArea &operator*=(const RectArea &rhs);
+    const RectArea operator*(const RectArea &rhs) const;
+
+    // Getters:
+    pos_t get_left_top();
+    pos_t get_right_bottom();
+    size_t size();
+    bool empty();
+
+    // Setters:
+    void set_left_top(pos_t);
+    void set_right_bottom(pos_t);
+
+    // embrace - powieksza obszar zeby objal tez nowy punkt 
+    void embrace(pos_t);
 };
 
 class Crossword
@@ -110,30 +137,29 @@ private:
 public:
     // Constructors:
     Crossword() = delete;
-    Crossword(const Word& word);
-    Crossword(const Word& firstWord, const std::vector<Word>& words);
-    Crossword(Word&& word) noexcept;
-    Crossword(Word&& firstWord, std::vector<Word>&& words) noexcept;
+    Crossword(const Word &word);
+    Crossword(const Word &firstWord, const std::vector<Word> &words);
+    Crossword(Word &&word) noexcept;
+    Crossword(Word &&firstWord, std::vector<Word> &&words) noexcept;
 
     // Destructors:
     ~Crossword() = default;
 
-    void insert_word(const Word& word);
+    void insert_word(const Word &word);
 
     // Getters:
     dim_t size() const;
     dim_t word_count() const;
 
     // Operators:
-    Crossword& operator=(const Crossword& other);
-    Crossword& operator=(Crossword&& other) noexcept ;
-    Crossword operator+(const Crossword& other);
-    Crossword operator+=(const Crossword& crossword);
-    friend std::ostream& operator<<(std::ostream& out, const Crossword& crossword);
+    Crossword &operator=(const Crossword &other);
+    Crossword &operator=(Crossword &&other) noexcept;
+    Crossword operator+(const Crossword &other);
+    Crossword operator+=(const Crossword &crossword);
+    friend std::ostream &operator<<(std::ostream &out, const Crossword &crossword);
 
 private:
-    bool colides(const Word& word);
-
+    bool colides(const Word &word);
 };
 
-#endif //III_PROJEKTCPP_KRZYZOWKA_CROSSWORD_H
+#endif // III_PROJEKTCPP_KRZYZOWKA_CROSSWORD_H
