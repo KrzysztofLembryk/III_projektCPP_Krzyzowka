@@ -2,6 +2,7 @@
 // #include <utility>
 #include <typeinfo>
 #include <stdexcept>
+#include <cassert>
 
 using std::cerr;
 using std::cin;
@@ -137,17 +138,37 @@ public:
 
 };
 
-int main()
+
+// TESTS
+
+void move_copy_constructor_Word_TEST()
 {
+    cout << "STARTING MOVE_COPY TESTS FOR WORD CLASS:\n";
+
     Word w1(1, 1, H, "Krakow");
     Word w2(move(w1));
 
-    cout << "w1: ";
-    w1.print();
+    assert(w2.get_word().compare("Krakow") == 0);
+    assert(w1.get_word().compare("") == 0);
 
-    cout << "\nw2: ";
-    w2.print();
+    Word wx(Word(1, 1, H, "Warszawa"));
 
+    assert(wx.get_word().compare("Warszawa") == 0);
+
+    Word w3(w2);
+
+    assert(w3.get_word().compare(w2.get_word()) == 0);
+
+    cout << "MOVE_COPY TESTS PASSED\n";
+    
+}
+
+
+
+int main()
+{
+    
+    move_copy_constructor_Word_TEST();
    
     return 0;
 }
