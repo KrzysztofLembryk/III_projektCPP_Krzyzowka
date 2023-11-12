@@ -22,6 +22,9 @@ enum orientation_t : bool
 
 namespace
 {
+    constexpr char NOT_A_LETTER = '?';
+    //constexpr string DEFAULT_STRING("?");
+
     class WordPos
     {
     private:
@@ -34,10 +37,8 @@ namespace
 
         WordPos(size_t x, size_t y, orientation_t _orient) : pos(x, y), 
         orient(_orient) {}
-
         WordPos(pos_t const &p, orientation_t const &o) : pos(p), orient(o) {}
 
-        // These constructors may be default:
         // Copy constructor:
         WordPos(const WordPos &w) = default;//: pos(w.pos), orient(w.orient) {}
 
@@ -49,19 +50,17 @@ namespace
 
         // Operators:
         WordPos &operator=(const WordPos &rhs) = default;
-
         WordPos &operator=(WordPos &&rhs) = default;
-
         auto operator<=>(const WordPos &) const = default;
         
         // Getters:
         // we return const reference not to allow to change these values
-        pos_t const &getPos() const
+        pos_t getPos() const
         {
             return pos;
         }
 
-        orientation_t const &getOrient() const
+        orientation_t getOrient() const
         {
             return orient;
         }
@@ -72,7 +71,6 @@ namespace
             cout << "orient: " << orient << "\n";
         }
     };
-
 }
 
 class Word
@@ -99,6 +97,20 @@ public:
     // Destructors:
     ~Word() = default;
 
+    // Operators:
+    Word &operator=(const Word &rhs) = default;
+    Word &operator=(Word &&rhs) = default;
+
+    bool operator==(const Word &other) const
+    {
+        return posAndOrient == other.posAndOrient;
+    }
+
+    auto operator<=>(const Word &other) const
+    {
+        return posAndOrient <=> other.posAndOrient;
+    }
+
     // Getters:
     string const &get_word() const
     {
@@ -110,7 +122,7 @@ public:
         return posAndOrient.getPos();
     }
 
-    pos_t get_end_position()
+    pos_t get_end_position() const
     {
         pos_t p = posAndOrient.getPos();
 
@@ -128,14 +140,14 @@ public:
         return posAndOrient.getOrient();
     }
 
-    char at(size_t idx)
+    char at(size_t idx) const
     {
         if (idx < word.size())
             return word[idx];
         throw std::invalid_argument("Word - at(idx) - given idx is out of bounds\n");
     }
 
-    size_t length()
+    size_t length() const
     {
         return word.size();
     }
@@ -179,9 +191,9 @@ void move_copy_constructor_Word_TEST()
     cout << "\n";
 }
 
-void operators_Word_WordPos_TEST()
+void operators_WordPos_TEST()
 {
-    printStartTest("OPERATORS", "WORD/WORD_POS");
+    printStartTest("OPERATORS", "WORD_POS");
 
     cout << "OPERATOR: =\n"; 
     WordPos pos1(1, 1, H);
@@ -247,11 +259,38 @@ void operators_Word_WordPos_TEST()
     cout << "\n";
 }
 
+void operators_Word_TEST()
+{
+    printStartTest("ALL OPERATORS", "WORD");
+
+    Word w1(1, 1, H, "w1");
+    Word w2 = w1;
+    Word w3 = Word(2, 1, H, "w3");
+    Word w4 = Word(1, 1, V, "w4");
+    Word w5 = Word(2, 1, V, "w5");
+
+    // H = false, V = true
+    assert(w1 == w2);
+    assert(w3 > w1);
+    assert(w3 >= w2);
+    assert(w3 < w5);
+    assert(w3 <= w5);
+    assert(w4 > w1);
+    assert(w4 >= w1);
+    assert((w1 <=> w2) == 0);
+    assert((w3 <=> w1) > 0);
+    assert((w3 <=> w5) < 0);
+
+
+    printEndTest("OPERATORS");
+}
+
 int main()
 {
 
     move_copy_constructor_Word_TEST();
-    operators_Word_WordPos_TEST();
+    operators_WordPos_TEST();
+    operators_Word_TEST();
 
     return 0;
 }
