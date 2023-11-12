@@ -71,7 +71,21 @@ public:
 
 class RectArea
 {
+private:
+    pos_t m_leftTop;
+    pos_t m_rightBottom;
 
+public:
+    // Constructors:
+    RectArea() = delete;
+    RectArea(pos_t leftTop, pos_t rightBottom);
+
+    // Destructors:
+    inline ~RectArea() = default;
+
+    // Getters:
+    pos_t get_left_top() const;
+    pos_t get_right_bottom() const;
 };
 
 class Crossword
@@ -84,7 +98,7 @@ private:
 public:
     // Constructors:
     Crossword() = delete;
-    Crossword(const Crossword& other);
+    Crossword(const Crossword& other) = default;
     Crossword(Crossword&& other) noexcept;
     explicit Crossword(const Word& word);
     Crossword(const Word& firstWord, const std::vector<Word>& words);
@@ -99,7 +113,7 @@ public:
     dim_t word_count() const;
 
     // Operators:
-    Crossword& operator=(const Crossword& other) = default;
+    Crossword& operator=(const Crossword& other);
     Crossword& operator=(Crossword&& other) noexcept;
     Crossword operator+(const Crossword& other) const;
     Crossword operator+=(const Crossword& other) const;
@@ -109,5 +123,10 @@ private:
     bool collides(const Word& word) const;
 
 };
+
+const RectArea DEFAULT_EMPTY_RECT_AREA(pos_t(0, 0), pos_t(0, 0));
+char DEFAULT_CHAR = '?';
+char CROSSWORD_BACKGROUND = '.';
+std::string DEFAULT_WORD = "?";
 
 #endif //III_PROJEKTCPP_KRZYZOWKA_CROSSWORD_H
