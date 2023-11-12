@@ -24,23 +24,30 @@ namespace
     public:
         // Constructors:
         WordPos() = delete;
-        WordPos(size_t x, size_t y, orientation_t _orient)
-            : pos(x, y), orient(_orient)
-        {
-        }
-        WordPos(pos_t p, orientation_t o)
-            : pos(p), orient(o)
-        {
-        }
+
+        WordPos(size_t x, size_t y, orientation_t _orient) : pos(x, y), 
+        orient(_orient) {}
+        WordPos(pos_t const &p, orientation_t const &o) : pos(p), orient(o) {}
+
+        // Copy constructor:
+        WordPos(const WordPos &w) = default;//: pos(w.pos), orient(w.orient) {}
+
+        // Move Constructor:
+        WordPos(WordPos &&w) = default;//: pos(move(w.pos)), orient(move(w.orient)) {}
 
         // Destructors:
         ~WordPos() = default;
 
+        // Operators:
+        WordPos &operator=(const WordPos &rhs) = default;
+        WordPos &operator=(WordPos &&rhs) = default;
+        auto operator<=>(const WordPos &) const = default;
+        
         // Getters:
         // we return const reference not to allow to change these values
-        pos_t const &getPos() { return pos; }
-        orientation_t const &getOrient() { return orient; }
+        pos_t getPos() const;
 
+        orientation_t getOrient() const;
     };
 }
 
@@ -52,19 +59,41 @@ private:
 
 public:
     // Constructors:
-    Word() = delete;
-    Word(size_t x, size_t y, orientation_t orient, const std::string& _word);
+    Word();
+
+    Word(size_t x, size_t y, orientation_t orient, std::string const &_word);
+
+    // Copy constructor:
+    Word(const Word &other); //: posAndOrient(other.posAndOrient), 
+    //    word(other.word) {}
+
+    // Move construcotr:
+    Word(Word &&other); //: posAndOrient(move(other.posAndOrient)), 
+    //    word(move(other.word)) {}
 
     // Destructors:
-    ~Word() = default;
+    ~Word();
+
+    // Operators:
+    Word &operator=(const Word &rhs);
+    Word &operator=(Word &&rhs);
+
+    bool operator==(const Word &other) const;
+
+    auto operator<=>(const Word &other) const;
 
     // Getters:
-    pos_t const &get_start_position();
-    pos_t get_end_position();
-    orientation_t get_orientation();
-    char at(size_t idx);
-    size_t length();
+    pos_t get_start_position() const;
 
+    pos_t get_end_position() const;
+
+    orientation_t get_orientation() const;
+
+    char at(size_t idx) const;
+
+    size_t length() const;
+
+    void print();
 };
 
 class RectArea
