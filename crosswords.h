@@ -100,6 +100,7 @@ private:
     pos_t topLeft, bottomRight;
     pos_t areaSize;
 
+    pos_t calcArea();
 public:
     RectArea();
     RectArea(pos_t _topLeft, pos_t _bottomRight);

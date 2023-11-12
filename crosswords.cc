@@ -28,7 +28,7 @@ namespace
     // constexpr string DEFAULT_STRING("?");
 
     // -----WORD_POS CLASS-----
-    
+
     pos_t WordPos::getPos() const
     {
         return pos;
@@ -105,9 +105,58 @@ size_t Word::length() const
 
 // -----RECT_AREA CLASS-----
 
+pos_t RectArea::calcArea()
+{
+    if(bottomRight.first < topLeft.first  || 
+        bottomRight.second < topLeft.second)
+        return pos_t(0, 0);
+    
+    return pos_t(bottomRight.first - topLeft.first, 
+                    bottomRight.second - topLeft.second);
+}
+
+// Constructors: 
+RectArea::RectArea() = delete;
+
+RectArea::RectArea(pos_t _topLeft, pos_t _bottomRight) : topLeft(_topLeft), 
+    bottomRight(_bottomRight), areaSize(calcArea()) {}
+
+RectArea::RectArea(const RectArea &other) : topLeft(other.topLeft), 
+    bottomRight(other.bottomRight), areaSize(other.areaSize) {}
+
+// nie wiem czy trzeba, bo w sumie jak mamy inty to one sa kopiowane po prostu
+RectArea::RectArea(RectArea &&other) : topLeft(move(other.topLeft)), 
+    bottomRight(move(other.bottomRight)), areaSize(move(other.areaSize)) {}
+
+RectArea::~RectArea() = default;
+
+RectArea &RectArea::operator=(const RectArea &rhs)
+{
+    if(this != &rhs)
+    {
+        topLeft = rhs.topLeft;
+        bottomRight = rhs.bottomRight;
+        areaSize = rhs.areaSize;
+    }
+    return *this;
+}
+
+RectArea &RectArea::operator=(RectArea &&rhs)
+{
+    if(this != &rhs)
+    {
+        topLeft = move(rhs.topLeft);
+        bottomRight = move(rhs.bottomRight);
+        areaSize = move(rhs.areaSize);
+    }
+    return *this;
+}
+
+
 
 
 // -----CROSSWORD CLASS-----
+
 Crossword::Crossword(const Word &word)
 {
         m_words.push_back(word);
