@@ -7,9 +7,9 @@
 using std::cerr;
 using std::cin;
 using std::cout;
+using std::move;
 using std::pair;
 using std::string;
-using std::move;
 
 using pos_t = pair<size_t, size_t>;
 using dim_t = pair<size_t, size_t>;
@@ -34,12 +34,18 @@ namespace
     public:
         // Constructors:
         WordPos() = delete;
-        WordPos(size_t x, size_t y, orientation_t _orient) : pos(x, y), orient(_orient) {}
-        WordPos(pos_t const &p, orientation_t const &o) : pos(p), orient(o)  {}
+
+        WordPos(size_t x, size_t y, orientation_t _orient) : pos(x, y), 
+        orient(_orient) {}
+
+        WordPos(pos_t const &p, orientation_t const &o) : pos(p), orient(o) {}
+
+        // These constructors may be default:
         // Copy constructor:
-        WordPos(const WordPos &w) : pos(w.pos), orient(w.orient) {}
+        WordPos(const WordPos &w) = default;//: pos(w.pos), orient(w.orient) {}
+
         // Move Constructor:
-        WordPos(WordPos &&w) : pos(move(w.pos)), orient(move(w.orient)) {}
+        WordPos(WordPos &&w) = default;//: pos(move(w.pos)), orient(move(w.orient)) {}
 
         // Destructors:
         ~WordPos() = default;
@@ -47,13 +53,15 @@ namespace
         // Getters:
         // we return const reference not to allow to change these values
         pos_t const &getPos() const
-        { 
+        {
             return pos;
         }
+
         orientation_t const &getOrient() const
         {
             return orient;
         }
+
         void print()
         {
             cout << "pos: (" << pos.first << ", " << pos.second << ") ";
@@ -72,30 +80,28 @@ private:
 public:
     // Constructors:
     Word() = delete;
-    Word(size_t x, size_t y, orientation_t orient, string const  &_word) : posAndOrient(x, y, orient)
-    {
-        // need to check rvalues in second assignment
-        if (_word.empty())
-            word = "?";
-        else
-            word = _word;
-    }
+
+    Word(size_t x, size_t y, orientation_t orient, string const &_word) :
+            posAndOrient(x, y, orient), word(!_word.empty() ? _word : "?") {}
 
     // Copy constructor:
-    Word(const Word &other) : posAndOrient(other.posAndOrient), word(other.word) {}
+    Word(const Word &other) = default;//: posAndOrient(other.posAndOrient), 
+    //    word(other.word) {}
 
     // Move construcotr:
-    Word(Word &&other) : posAndOrient(move(other.posAndOrient)), word(move(other.word)) {}
+    Word(Word &&other) = default;//: posAndOrient(move(other.posAndOrient)), 
+    //    word(move(other.word)) {}
 
     // Destructors:
     ~Word() = default;
 
     // Getters:
-    const string &get_word() 
+    string const &get_word() const
     {
         return word;
     }
-    pos_t const &get_start_position() const
+
+    pos_t get_start_position() const
     {
         return posAndOrient.getPos();
     }
@@ -113,7 +119,7 @@ public:
             return pos_t(p.first, p.second + word.size());
     }
 
-    orientation_t const get_orientation() const
+    orientation_t get_orientation() const
     {
         return posAndOrient.getOrient();
     }
@@ -135,9 +141,7 @@ public:
         cout << "string: " << word << ", ";
         posAndOrient.print();
     }
-
 };
-
 
 // TESTS
 
@@ -160,15 +164,12 @@ void move_copy_constructor_Word_TEST()
     assert(w3.get_word().compare(w2.get_word()) == 0);
 
     cout << "MOVE_COPY TESTS PASSED\n";
-    
 }
-
-
 
 int main()
 {
-    
+
     move_copy_constructor_Word_TEST();
-   
+
     return 0;
 }
