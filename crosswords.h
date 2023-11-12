@@ -71,7 +71,21 @@ public:
 
 class RectArea
 {
+private:
+    pos_t m_leftTop;
+    pos_t m_rightBottom;
 
+public:
+    // Constructors:
+    RectArea() = delete;
+    RectArea(pos_t leftTop, pos_t rightBottom);
+
+    // Destructors:
+    inline ~RectArea() = default;
+
+    // Getters:
+    pos_t get_left_top() const;
+    pos_t get_right_bottom() const;
 };
 
 class Crossword
@@ -99,7 +113,7 @@ public:
     dim_t word_count() const;
 
     // Operators:
-    Crossword& operator=(const Crossword& other) = default;
+    Crossword& operator=(const Crossword& other);
     Crossword& operator=(Crossword&& other) noexcept;
     Crossword operator+(const Crossword& other) const;
     Crossword operator+=(const Crossword& other) const;
