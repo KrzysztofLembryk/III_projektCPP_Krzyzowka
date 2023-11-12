@@ -16,15 +16,12 @@ using dim_t = pair<size_t, size_t>;
 
 enum orientation_t : bool
 {
-    H = true,
-    V = false
+    H = false,
+    V = true
 };
 
 namespace
 {
-    /**
-     *
-     */
     class WordPos
     {
     private:
@@ -50,6 +47,13 @@ namespace
         // Destructors:
         ~WordPos() = default;
 
+        // Operators:
+        WordPos &operator=(const WordPos &rhs) = default;
+
+        WordPos &operator=(WordPos &&rhs) = default;
+
+        auto operator<=>(const WordPos &) const = default;
+        
         // Getters:
         // we return const reference not to allow to change these values
         pos_t const &getPos() const
@@ -144,10 +148,18 @@ public:
 };
 
 // TESTS
+void printStartTest(string method, string cls)
+{
+    cout << "STARTING " << method << " TESTS FOR " + cls + " CLASS\n";
+}
+void printEndTest(string method = "")
+{
+    cout << method + " TESTS PASSED\n";
+}
 
 void move_copy_constructor_Word_TEST()
 {
-    cout << "STARTING MOVE_COPY TESTS FOR WORD CLASS:\n";
+    printStartTest("MOVE_COPY", "WORD");
 
     Word w1(1, 1, H, "Krakow");
     Word w2(move(w1));
@@ -163,13 +175,83 @@ void move_copy_constructor_Word_TEST()
 
     assert(w3.get_word().compare(w2.get_word()) == 0);
 
-    cout << "MOVE_COPY TESTS PASSED\n";
+    printEndTest("MOVE_COPY");
+    cout << "\n";
+}
+
+void operators_Word_WordPos_TEST()
+{
+    printStartTest("OPERATORS", "WORD/WORD_POS");
+
+    cout << "OPERATOR: =\n"; 
+    WordPos pos1(1, 1, H);
+    WordPos pos2 = pos1;
+
+    assert(pos2.getPos().first == 1 && pos2.getPos().second == 1 && 
+        pos2.getOrient() == H);
+    
+    pos2 = pos2;
+
+    assert(pos2.getPos().first == 1 && pos2.getPos().second == 1 && 
+        pos2.getOrient() == H);
+
+    pos2 = WordPos(2, 2, H);
+
+    assert(pos2.getPos().first == 2 && pos2.getPos().second == 2 && 
+        pos2.getOrient() == H);
+    
+    cout << "PASSED\n";
+    
+    cout << "OPERATOR: == && !=\n";
+
+    pos1 = pos2;
+
+    assert(pos2 == pos2);
+    assert(pos2 == WordPos(2, 2, H));
+    assert(pos1 == pos2);
+
+    pos1 = WordPos(3, 3, H);
+
+    assert(!(pos2 == WordPos(1, 2, H)));
+    assert(!(pos2 == WordPos(1, 2, V)));
+    assert(!(pos2 == WordPos(1, 1, H)));
+    assert(!(pos2 == pos1));
+    assert(pos2 != pos1);
+    assert(pos2 != WordPos(3, 3, H));
+
+    cout << "PASSED\n";
+
+    cout << "OPERATOR: <=>\n";
+
+    // H = false, V = true
+    pos1 = WordPos(1, 2, H);
+    pos2 = WordPos(2, 1, H);
+    WordPos posH(1, 1, H);
+    WordPos posV(1, 1, V);
+
+    assert(pos1 < pos2);
+    assert(pos1 > posH);
+    assert(pos1 > posV);
+    assert(posH < posV);
+    assert(pos1 <= pos1);
+    assert(pos1 <= pos2);
+    assert(pos1 >= posV);
+    assert((pos1 <=> pos1) == 0);
+    assert((pos1 <=> pos2) < 0 );
+    assert((posV <=> posH) > 0);
+
+
+    cout << "PASSED\n";
+
+    printEndTest("OPERATORS");
+    cout << "\n";
 }
 
 int main()
 {
 
     move_copy_constructor_Word_TEST();
+    operators_Word_WordPos_TEST();
 
     return 0;
 }
