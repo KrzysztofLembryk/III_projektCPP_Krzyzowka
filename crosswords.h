@@ -42,6 +42,13 @@ namespace
         inline orientation_t getOrient() const { return m_orient; }
 
     };
+
+    struct Letter
+    {
+        char character;
+        orientation_t orientation;
+        bool intersection;
+    };
 }
 
 class Word
@@ -91,9 +98,9 @@ public:
 class Crossword
 {
 private:
-    std::vector<Word> m_words;
+    std::vector<Word> m_words; // can be deleted, but a workaround for word_count() will have to be implemented
     RectArea m_rectArea;
-    std::map<pos_t, std::pair<orientation_t, char>> m_points;
+    std::map<pos_t, Letter> m_letters;
 
 public:
     // Constructors:
@@ -124,7 +131,7 @@ private:
 
 };
 
-const RectArea DEFAULT_EMPTY_RECT_AREA(pos_t(0, 0), pos_t(0, 0));
+const RectArea DEFAULT_EMPTY_RECT_AREA(pos_t(1, 1), pos_t(0, 0));
 char DEFAULT_CHAR = '?';
 char CROSSWORD_BACKGROUND = '.';
 std::string DEFAULT_WORD = "?";
