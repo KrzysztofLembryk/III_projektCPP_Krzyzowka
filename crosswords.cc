@@ -16,12 +16,6 @@ using std::string;
 using pos_t = pair<size_t, size_t>;
 using dim_t = pair<size_t, size_t>;
 
-enum orientation_t : bool
-{
-    H = false,
-    V = true
-};
-
 namespace
 {
     constexpr char NOT_A_LETTER = '?';
@@ -46,8 +40,7 @@ namespace
 // Construcotrs:
 Word::Word() = delete;
 
-Word::Word(size_t x, size_t y, orientation_t orient, std::string const &_word) :
-            posAndOrient(x, y, orient), word(!_word.empty() ? _word : "?") {}
+Word::Word(size_t x, size_t y, orientation_t orient, std::string const &_word) : posAndOrient(x, y, orient), word(!_word.empty() ? _word : "?") {}
 
 Word::Word(const Word &other) = default;
 
@@ -96,44 +89,44 @@ char Word::at(size_t idx) const
 {
     if (idx < word.size())
         return word[idx];
-        throw std::invalid_argument("Word - at(idx) - given idx is out of bounds\n");
+    throw std::invalid_argument("Word - at(idx) - given idx is out of bounds\n");
 }
 
 size_t Word::length() const
 {
-        return word.size();
+    return word.size();
 }
 
 // -----RECT_AREA CLASS-----
 
 pos_t RectArea::calcArea()
 {
-    if(bottomRight.first < topLeft.first  || 
+    if (bottomRight.first < topLeft.first ||
         bottomRight.second < topLeft.second)
         return pos_t(0, 0);
-    
-    return pos_t(bottomRight.first - topLeft.first, 
-                    bottomRight.second - topLeft.second);
+
+    return pos_t(bottomRight.first - topLeft.first,
+                 bottomRight.second - topLeft.second);
 }
 
-// Constructors: 
+// Constructors:
 RectArea::RectArea() = delete;
 
-RectArea::RectArea(pos_t _topLeft, pos_t _bottomRight) : topLeft(_topLeft), 
-    bottomRight(_bottomRight), areaSize(calcArea()) {}
+RectArea::RectArea(pos_t _topLeft, pos_t _bottomRight) : topLeft(_topLeft),
+                                                         bottomRight(_bottomRight), areaSize(calcArea()) {}
 
-RectArea::RectArea(const RectArea &other) : topLeft(other.topLeft), 
-    bottomRight(other.bottomRight), areaSize(other.areaSize) {}
+RectArea::RectArea(const RectArea &other) : topLeft(other.topLeft),
+                                            bottomRight(other.bottomRight), areaSize(other.areaSize) {}
 
 // nie wiem czy trzeba, bo w sumie jak mamy inty to one sa kopiowane po prostu
-RectArea::RectArea(RectArea &&other) : topLeft(move(other.topLeft)), 
-    bottomRight(move(other.bottomRight)), areaSize(move(other.areaSize)) {}
+RectArea::RectArea(RectArea &&other) : topLeft(move(other.topLeft)),
+                                       bottomRight(move(other.bottomRight)), areaSize(move(other.areaSize)) {}
 
 RectArea::~RectArea() = default;
 
 RectArea &RectArea::operator=(const RectArea &rhs)
 {
-    if(this != &rhs)
+    if (this != &rhs)
     {
         topLeft = rhs.topLeft;
         bottomRight = rhs.bottomRight;
@@ -144,7 +137,7 @@ RectArea &RectArea::operator=(const RectArea &rhs)
 
 RectArea &RectArea::operator=(RectArea &&rhs)
 {
-    if(this != &rhs)
+    if (this != &rhs)
     {
         topLeft = move(rhs.topLeft);
         bottomRight = move(rhs.bottomRight);
@@ -187,19 +180,65 @@ void RectArea::set_right_bottom(pos_t p)
     areaSize = calcArea();
 }
 
-void RectArea::embrace(pos_t p)
+point_placement RectArea::isInside(pos_t p) const
 {
-
+    if (p.second < topLeft.second)
+        return OVER;
+    if (p.second > bottomRight.second)
+        return UNDER;
+    if (p.first > bottomRight.first)
+        return ON_THE_RIGHT;
+    if (p.first < topLeft.first)
+        return ON_THE_LEFT;
+    return INSIDE;
 }
 
+void RectArea::extend_to_left_or_right(pos_t p)
+{
+    if (p.first < topLeft.first)
+        topLeft.first = p.first;
+    else if (p.first > bottomRight.first)
+        bottomRight.first = p.first;
+}
 
+void RectArea::embrace(pos_t p)
+{
+    if (!this->empty())
+    {
+        point_placement p_pos = isInside(p);
+
+        switch (p_pos)
+        {
+        case OVER:
+            topLeft.second = p.second;
+            
+            extend_to_left_or_right(p);
+
+            break;
+        case UNDER:
+            bottomRight.second = p.second;
+
+            extend_to_left_or_right(p);
+
+            break;
+        case ON_THE_RIGHT:
+            bottomRight.first = p.first;
+            break;
+        case ON_THE_LEFT:
+            topLeft.first = p.first;
+            break;
+        case INSIDE:
+            break;
+        }
+    }
+}
 
 // -----CROSSWORD CLASS-----
 
 Crossword::Crossword(const Word &word)
 {
-        m_words.push_back(word);
-        // rectAreaInit
+    m_words.push_back(word);
+    // rectAreaInit
 }
 
 Crossword::Crossword(const Word &firstWord, const std::vector<Word> &words)

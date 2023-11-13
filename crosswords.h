@@ -15,6 +15,8 @@ enum orientation_t : bool
 
 namespace
 {
+    enum point_placement { ON_THE_RIGHT, ON_THE_LEFT, OVER, UNDER, INSIDE};
+
     class WordPos
     {
     private:
@@ -101,7 +103,8 @@ private:
     pos_t areaSize;
 
     pos_t calcArea();
-    bool isInside(pos_t);
+    point_placement isInside(pos_t) const;
+    void extend_to_left_or_right(pos_t);
 public:
     RectArea();
     RectArea(pos_t _topLeft, pos_t _bottomRight);
