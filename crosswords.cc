@@ -220,6 +220,15 @@ RectArea &RectArea::operator*=(const RectArea &rhs)
     return *this;
 }
 
+const RectArea RectArea::operator*(const RectArea &rhs) const
+{
+    RectArea newRectArea = *this;
+    newRectArea *= rhs;
+
+    return newRectArea;
+}
+
+
 // Getters:
 pos_t RectArea::get_left_top() const
 {
