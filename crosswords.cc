@@ -19,7 +19,7 @@ using dim_t = pair<size_t, size_t>;
 namespace
 {
     constexpr char NOT_A_LETTER = '?';
-    const RectArea EMPTY_AREA(pos_t(0, 0), pos_t(0,0));
+    const RectArea EMPTY_AREA(pos_t(2, 0), pos_t(1, 0));
     // constexpr string DEFAULT_STRING("?");
 
     // -----WORD_POS CLASS-----
@@ -100,12 +100,34 @@ size_t Word::length() const
 
 // -----RECT_AREA CLASS-----
 
+point_placement RectArea::isInside(pos_t p) const
+{
+    if(atLeastOneElemExist)
+    {
+        if (p.second < topLeft.second)
+            return OVER;
+        if (p.second > bottomRight.second)
+            return UNDER;
+        if (p.first > bottomRight.first)
+            return ON_THE_RIGHT;
+        if (p.first < topLeft.first)
+            return ON_THE_LEFT;
+        return INSIDE;
+    }
+    return NO_AREA;
+}
+
 pos_t RectArea::calcArea()
 {
+    atLeastOneElemExist = true;
+    
     if (bottomRight.first < topLeft.first ||
         bottomRight.second < topLeft.second)
-        return pos_t(0, 0);
-
+        {
+            atLeastOneElemExist = false;
+            return pos_t(0, 0);
+        }
+        
     return pos_t(bottomRight.first - topLeft.first,
                  bottomRight.second - topLeft.second);
 }
@@ -114,14 +136,18 @@ pos_t RectArea::calcArea()
 RectArea::RectArea() = delete;
 
 RectArea::RectArea(pos_t _topLeft, pos_t _bottomRight) : topLeft(_topLeft),
-                                                         bottomRight(_bottomRight), areaSize(calcArea()) {}
+                                                    bottomRight(_bottomRight), areaSize(calcArea()) {}
 
-RectArea::RectArea(const RectArea &other) : topLeft(other.topLeft),
-                                            bottomRight(other.bottomRight), areaSize(other.areaSize) {}
+RectArea::RectArea(const RectArea &other) = default;
+//: topLeft(other.topLeft),
+                                            // bottomRight(other.bottomRight), areaSize(other.areaSize),
+                                            // atLeastOneElemExist(other.atLeastOneElemExist) {}
 
 // nie wiem czy trzeba, bo w sumie jak mamy inty to one sa kopiowane po prostu
-RectArea::RectArea(RectArea &&other) : topLeft(move(other.topLeft)),
-                                       bottomRight(move(other.bottomRight)), areaSize(move(other.areaSize)) {}
+RectArea::RectArea(RectArea &&other) = default;
+// : topLeft(move(other.topLeft)),
+// bottomRight(move(other.bottomRight)), areaSize(move(other.areaSize)),
+// atLeastOneElemExist(move(other.atLeastOneElemExist)) {}
 
 RectArea::~RectArea() = default;
 
@@ -132,6 +158,7 @@ RectArea &RectArea::operator=(const RectArea &rhs)
         topLeft = rhs.topLeft;
         bottomRight = rhs.bottomRight;
         areaSize = rhs.areaSize;
+        atLeastOneElemExist = rhs.atLeastOneElemExist;
     }
     return *this;
 }
@@ -143,31 +170,44 @@ RectArea &RectArea::operator=(RectArea &&rhs)
         topLeft = move(rhs.topLeft);
         bottomRight = move(rhs.bottomRight);
         areaSize = move(rhs.areaSize);
+        atLeastOneElemExist = move(rhs.atLeastOneElemExist);
     }
     return *this;
 }
 
 RectArea &RectArea::operator*=(const RectArea &rhs)
 {
-    if(this->empty() || rhs.empty())
+    if (this->empty())
     {
-        *this = EMPTY_AREA;
+        if(atLeastOneElemExist && rhs.isInside(topLeft) == INSIDE)
+        {
+            *this = RectArea(topLeft, topLeft);
+        }
+        else
+            *this = EMPTY_AREA;
+    }
+    else if(rhs.empty())
+    {
+        if(rhs.atLeastOneElemExist && this->isInside(rhs.topLeft) == INSIDE)
+        {
+            *this = RectArea(rhs.topLeft, rhs.topLeft);
+        }
+        else
+            *this = EMPTY_AREA;
     }
     else
     {
-        if(topLeft.first > rhs.bottomRight.first || 
-            topLeft.second > rhs.bottomRight.second || 
-            bottomRight.first < rhs.topLeft.first || 
+        if (topLeft.first > rhs.bottomRight.first ||
+            topLeft.second > rhs.bottomRight.second ||
+            bottomRight.first < rhs.topLeft.first ||
             bottomRight.second < rhs.topLeft.second)
-            {
-                *this = EMPTY_AREA;
-            }
+        {
+            *this = EMPTY_AREA;
+        }
         else
         {
-            
         }
     }
-
 
     return *this;
 }
@@ -206,18 +246,7 @@ void RectArea::set_right_bottom(pos_t p)
     areaSize = calcArea();
 }
 
-point_placement RectArea::isInside(pos_t p) const
-{
-    if (p.second < topLeft.second)
-        return OVER;
-    if (p.second > bottomRight.second)
-        return UNDER;
-    if (p.first > bottomRight.first)
-        return ON_THE_RIGHT;
-    if (p.first < topLeft.first)
-        return ON_THE_LEFT;
-    return INSIDE;
-}
+
 
 void RectArea::extend_to_left_or_right(pos_t p)
 {
@@ -229,6 +258,8 @@ void RectArea::extend_to_left_or_right(pos_t p)
 
 void RectArea::embrace(pos_t p)
 {
+    // RectArea is empty when has only one point, meaning topLeft = bottomRight
+    // or when is null set
     if (!this->empty())
     {
         point_placement p_pos = isInside(p);
@@ -254,6 +285,9 @@ void RectArea::embrace(pos_t p)
         case INSIDE:
             break;
         }
+    }
+    else
+    {
     }
 }
 
