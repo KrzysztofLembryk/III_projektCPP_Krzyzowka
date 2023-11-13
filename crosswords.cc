@@ -12,6 +12,8 @@ using std::cout;
 using std::move;
 using std::pair;
 using std::string;
+using std::min;
+using std::max;
 
 using pos_t = pair<size_t, size_t>;
 using dim_t = pair<size_t, size_t>;
@@ -206,6 +208,12 @@ RectArea &RectArea::operator*=(const RectArea &rhs)
         }
         else
         {
+            pos_t newTopLeft(max(topLeft.first, rhs.topLeft.first), 
+                max(topLeft.second, rhs.topLeft.second));
+            pos_t newBottomRight(min(topLeft.first, rhs.topLeft.first),
+                min(bottomRight.second, rhs.bottomRight.second));
+
+            *this = RectArea(newTopLeft, newBottomRight);
         }
     }
 
@@ -246,8 +254,6 @@ void RectArea::set_right_bottom(pos_t p)
     areaSize = calcArea();
 }
 
-
-
 void RectArea::extend_to_left_or_right(pos_t p)
 {
     if (p.first < topLeft.first)
@@ -281,6 +287,7 @@ void RectArea::embrace(pos_t p)
         case ON_THE_RIGHT:
         case ON_THE_LEFT:
             extend_to_left_or_right(p);
+
             break;
         default:
             break;
