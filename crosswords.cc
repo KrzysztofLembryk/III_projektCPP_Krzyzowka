@@ -19,6 +19,7 @@ using dim_t = pair<size_t, size_t>;
 namespace
 {
     constexpr char NOT_A_LETTER = '?';
+    const RectArea EMPTY_AREA(pos_t(0, 0), pos_t(0,0));
     // constexpr string DEFAULT_STRING("?");
 
     // -----WORD_POS CLASS-----
@@ -146,6 +147,31 @@ RectArea &RectArea::operator=(RectArea &&rhs)
     return *this;
 }
 
+RectArea &RectArea::operator*=(const RectArea &rhs)
+{
+    if(this->empty() || rhs.empty())
+    {
+        *this = EMPTY_AREA;
+    }
+    else
+    {
+        if(topLeft.first > rhs.bottomRight.first || 
+            topLeft.second > rhs.bottomRight.second || 
+            bottomRight.first < rhs.topLeft.first || 
+            bottomRight.second < rhs.topLeft.second)
+            {
+                *this = EMPTY_AREA;
+            }
+        else
+        {
+            
+        }
+    }
+
+
+    return *this;
+}
+
 // Getters:
 pos_t RectArea::get_left_top() const
 {
@@ -211,7 +237,7 @@ void RectArea::embrace(pos_t p)
         {
         case OVER:
             topLeft.second = p.second;
-            
+
             extend_to_left_or_right(p);
 
             break;
@@ -221,11 +247,9 @@ void RectArea::embrace(pos_t p)
             extend_to_left_or_right(p);
 
             break;
-        case ON_THE_RIGHT:
-            bottomRight.first = p.first;
-            break;
         case ON_THE_LEFT:
-            topLeft.first = p.first;
+        case ON_THE_RIGHT:
+            extend_to_left_or_right(p);
             break;
         case INSIDE:
             break;
