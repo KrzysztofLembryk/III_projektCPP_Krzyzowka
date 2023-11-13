@@ -260,7 +260,7 @@ void RectArea::embrace(pos_t p)
 {
     // RectArea is empty when has only one point, meaning topLeft = bottomRight
     // or when is null set
-    if (!this->empty())
+    if (!this->empty() || (this->empty() && atLeastOneElemExist))
     {
         point_placement p_pos = isInside(p);
 
@@ -278,17 +278,21 @@ void RectArea::embrace(pos_t p)
             extend_to_left_or_right(p);
 
             break;
-        case ON_THE_LEFT:
         case ON_THE_RIGHT:
+        case ON_THE_LEFT:
             extend_to_left_or_right(p);
             break;
-        case INSIDE:
+        default:
             break;
         }
     }
-    else
+    else if(!atLeastOneElemExist)
     {
+        topLeft = p;
+        bottomRight = p;   
     }
+
+    this->calcArea();
 }
 
 // -----CROSSWORD CLASS-----
