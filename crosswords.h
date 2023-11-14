@@ -18,6 +18,14 @@ namespace
 {
     enum point_placement { ON_THE_RIGHT, ON_THE_LEFT, OVER, UNDER, INSIDE, NO_AREA};
 
+    
+}
+
+class RectArea;
+
+class Word
+{
+private:
     class WordPos
     {
     private:
@@ -48,17 +56,10 @@ namespace
 
         // Getters:
         // we return const reference not to allow to change these values
-        pos_t getPos() const;
+        pos_t getPos() const {return pos;}
 
-        orientation_t getOrient() const;
+        orientation_t getOrient() const {return orient;}
     };
-}
-
-class RectArea;
-
-class Word
-{
-private:
     WordPos posAndOrient;
     std::string word;
 

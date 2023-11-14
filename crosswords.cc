@@ -28,15 +28,15 @@ namespace
 
     // -----WORD_POS CLASS-----
 
-    pos_t WordPos::getPos() const
-    {
-        return pos;
-    }
+    // pos_t WordPos::getPos() const
+    // {
+    //     return pos;
+    // }
 
-    orientation_t WordPos::getOrient() const
-    {
-        return orient;
-    }
+    // orientation_t WordPos::getOrient() const
+    // {
+    //     return orient;
+    // }
 
 }
 
