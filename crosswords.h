@@ -1,5 +1,5 @@
-#ifndef CROSWORD_H
-#define CROSSWORD_H
+#ifndef CROSSWORDS_H
+#define CROSSWORDS_H
 
 #include <map>
 #include <vector>
@@ -222,4 +222,4 @@ inline char DEFAULT_CHAR = '?';
 inline char CROSSWORD_BACKGROUND = '.';
 inline std::string DEFAULT_WORD = "?";
 
-#endif // CROSSWORD_H
+#endif // CROSSWORDS_H
