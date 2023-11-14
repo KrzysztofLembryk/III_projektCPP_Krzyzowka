@@ -18,23 +18,25 @@ using std::max;
 using pos_t = pair<size_t, size_t>;
 using dim_t = pair<size_t, size_t>;
 
+const RectArea EMPTY_AREA(pos_t(2, 0), pos_t(1, 0));
+
 namespace
 {
     constexpr char NOT_A_LETTER = '?';
-    const RectArea EMPTY_AREA(pos_t(2, 0), pos_t(1, 0));
+    //const RectArea EMPTY_AREA(pos_t(2, 0), pos_t(1, 0));
     // constexpr string DEFAULT_STRING("?");
 
     // -----WORD_POS CLASS-----
 
-    pos_t WordPos::getPos() const
-    {
-        return pos;
-    }
+    // pos_t WordPos::getPos() const
+    // {
+    //     return pos;
+    // }
 
-    orientation_t WordPos::getOrient() const
-    {
-        return orient;
-    }
+    // orientation_t WordPos::getOrient() const
+    // {
+    //     return orient;
+    // }
 
 }
 
@@ -62,7 +64,7 @@ bool Word::operator==(const Word &other) const
     return posAndOrient == other.posAndOrient;
 }
 
-auto Word::operator<=>(const Word &other) const
+std::weak_ordering Word::operator<=>(const Word &other) const
 {
     return posAndOrient <=> other.posAndOrient;
 }
@@ -217,7 +219,7 @@ RectArea &RectArea::operator*=(const RectArea &rhs)
         {
             pos_t newTopLeft(max(topLeft.first, rhs.topLeft.first), 
                 max(topLeft.second, rhs.topLeft.second));
-            pos_t newBottomRight(min(topLeft.first, rhs.topLeft.first),
+            pos_t newBottomRight(min(bottomRight.first, rhs.bottomRight.first),
                 min(bottomRight.second, rhs.bottomRight.second));
 
             *this = RectArea(newTopLeft, newBottomRight);
@@ -320,56 +322,56 @@ void RectArea::embrace(pos_t p)
 
 // -----CROSSWORD CLASS-----
 
-Crossword::Crossword(const Word &word)
-{
-    m_words.push_back(word);
-    // rectAreaInit
-}
+// Crossword::Crossword(const Word &word)
+// {
+//     m_words.push_back(word);
+//     // rectAreaInit
+// }
 
-Crossword::Crossword(const Word &firstWord, const std::vector<Word> &words)
-{
-}
+// Crossword::Crossword(const Word &firstWord, const std::vector<Word> &words)
+// {
+// }
 
-Crossword::Crossword(Word &&word) noexcept
-{
-}
+// Crossword::Crossword(Word &&word) noexcept
+// {
+// }
 
-Crossword::Crossword(Word &&firstWord, std::vector<Word> &&words) noexcept
-{
-}
+// Crossword::Crossword(Word &&firstWord, std::vector<Word> &&words) noexcept
+// {
+// }
 
-void Crossword::insert_word(const Word &word)
-{
-}
+// void Crossword::insert_word(const Word &word)
+// {
+// }
 
-dim_t Crossword::size() const
-{
-}
+// dim_t Crossword::size() const
+// {
+// }
 
-dim_t Crossword::word_count() const
-{
-}
+// dim_t Crossword::word_count() const
+// {
+// }
 
-bool Crossword::colides(const Word &word)
-{
-}
+// bool Crossword::colides(const Word &word)
+// {
+// }
 
-Crossword Crossword::operator+(const Crossword &other)
-{
-}
+// Crossword Crossword::operator+(const Crossword &other)
+// {
+// }
 
-Crossword Crossword::operator+=(const Crossword &crossword)
-{
-}
+// Crossword Crossword::operator+=(const Crossword &crossword)
+// {
+// }
 
-std::ostream &operator<<(std::ostream &out, const Crossword &crossword)
-{
-}
+// std::ostream &operator<<(std::ostream &out, const Crossword &crossword)
+// {
+// }
 
-Crossword &Crossword::operator=(const Crossword &other)
-{
-}
+// Crossword &Crossword::operator=(const Crossword &other)
+// {
+// }
 
-Crossword &Crossword::operator=(Crossword &&other) noexcept
-{
-}
+// Crossword &Crossword::operator=(Crossword &&other) noexcept
+// {
+// }

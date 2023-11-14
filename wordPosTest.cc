@@ -1,9 +1,68 @@
+#include <iostream>
 #include <cassert>
-#include "crosswords.h"
 
+using std::cerr;
+using std::cin;
 using std::cout;
+using std::max;
+using std::min;
 using std::move;
+using std::pair;
 using std::string;
+
+using pos_t = std::pair<size_t, size_t>;
+using dim_t = std::pair<size_t, size_t>;
+
+enum orientation_t : bool
+{
+    H = false,
+    V = true
+};
+
+class WordPos
+{
+private:
+    pos_t pos;
+    orientation_t orient;
+
+public:
+    // Constructors:
+    WordPos() = delete;
+
+    WordPos(size_t x, size_t y, orientation_t _orient) : pos(x, y),
+                                                         orient(_orient) {}
+    WordPos(pos_t const &p, orientation_t const &o) : pos(p), orient(o) {}
+
+    // Copy constructor:
+    WordPos(const WordPos &w) = default; //: pos(w.pos), orient(w.orient) {}
+
+    // Move Constructor:
+    WordPos(WordPos &&w) = default; //: pos(move(w.pos)), orient(move(w.orient)) {}
+
+    // Destructors:
+    ~WordPos() = default;
+
+    // Operators:
+    WordPos &operator=(const WordPos &rhs) = default;
+    WordPos &operator=(WordPos &&rhs) = default;
+    auto operator<=>(const WordPos &) const = default;
+
+    // Getters:
+    // we return const reference not to allow to change these values
+    pos_t getPos() const;
+
+    orientation_t getOrient() const;
+};
+
+pos_t WordPos::getPos() const
+{
+    return pos;
+}
+
+orientation_t WordPos::getOrient() const
+{
+    return orient;
+}
 
 void printStartTest(string method, string cls)
 {
@@ -13,28 +72,6 @@ void printEndTest(string method = "")
 {
     cout << method + " TESTS PASSED\n";
 }
-
-// void move_copy_constructor_Word_TEST()
-// {
-//         printStartTest("MOVE_COPY", "WORD");
-
-//         Word w1(1, 1, H, "Krakow");
-//         Word w2(move(w1));
-
-//         assert(w2.get_word().compare("Krakow") == 0);
-//         assert(w1.get_word().compare("") == 0);
-
-//         Word wx(Word(1, 1, H, "Warszawa"));
-
-//         assert(wx.get_word().compare("Warszawa") == 0);
-
-//         Word w3(w2);
-
-//         assert(w3.get_word().compare(w2.get_word()) == 0);
-
-//         printEndTest("MOVE_COPY");
-//         cout << "\n";
-// }
 
 void operators_WordPos_TEST()
 {
@@ -103,46 +140,8 @@ void operators_WordPos_TEST()
     cout << "\n";
 }
 
-void operators_Word_TEST()
-{
-    printStartTest("ALL OPERATORS", "WORD");
-
-    Word w1(1, 1, H, "w1");
-    Word w2 = w1;
-    Word w3 = Word(2, 1, H, "w3");
-    Word w4 = Word(1, 1, V, "w4");
-    Word w5 = Word(2, 1, V, "w5");
-
-    // H = false, V = true
-    assert(w1 == w2);
-    assert(w3 > w1);
-    assert(w3 >= w2);
-    assert(w3 < w5);
-    assert(w3 <= w5);
-    assert(w4 > w1);
-    assert(w4 >= w1);
-    assert((w1 <=> w2) == 0);
-    assert((w3 <=> w1) > 0);
-    assert((w3 <=> w5) < 0);
-    assert(w1 >= Word(0, 1 , V,"xd"));
-    assert(w1 <= Word(1, 2, H, "dx"));
-    assert(w1 == Word(1, 1, H, "dsd"));
-
-    printEndTest("OPERATORS");
-}
-
-void RectArea_TEST()
-{
-    
-}
-
-
 int main()
 {
-
-    // move_copy_constructor_Word_TEST();
     operators_WordPos_TEST();
-    operators_Word_TEST();
-
     return 0;
 }
