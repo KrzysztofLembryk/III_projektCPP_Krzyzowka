@@ -1,8 +1,10 @@
 #ifndef III_PROJEKTCPP_KRZYZOWKA_CROSSWORD_H
 #define III_PROJEKTCPP_KRZYZOWKA_CROSSWORD_H
 
+#include <map>
 #include <vector>
 #include <iostream>
+#include <compare>
 
 using pos_t = std::pair<size_t, size_t>;
 using dim_t = std::pair<size_t, size_t>;
@@ -16,7 +18,10 @@ enum orientation_t : bool
 
 namespace
 {
-    enum point_placement { ON_THE_RIGHT, ON_THE_LEFT, OVER, UNDER, INSIDE, NO_AREA};
+    enum point_placement
+    {
+        ON_THE_RIGHT, ON_THE_LEFT, OVER, UNDER, INSIDE, NO_AREA
+    };
 
     
 }
@@ -29,32 +34,53 @@ private:
     class WordPos
     {
     private:
-        pos_t pos;
-        orientation_t orient;
+        pos_t m_pos;
+        orientation_t m_orient;
 
     public:
         // Constructors:
         WordPos() = delete;
 
-        WordPos(size_t x, size_t y, orientation_t _orient) : pos(x, y),
-                                                             orient(_orient) {}
-        WordPos(pos_t const &p, orientation_t const &o) : pos(p), orient(o) {}
+        inline WordPos(size_t x, size_t y, orientation_t _orient)
+                : m_pos(x, y), m_orient(_orient)
+        {
+        }
+
+        inline WordPos(pos_t const& p, orientation_t const& o)
+                : m_pos(p), m_orient(o)
+        {
+        }
 
         // Copy constructor:
-        WordPos(const WordPos &w) = default; //: pos(w.pos), orient(w.orient) {}
+        WordPos(const WordPos& w) = default;
+        //: m_pos(w.m_pos), m_orient(w.m_orient) {}
 
         // Move Constructor:
-        WordPos(WordPos &&w) = default; //: pos(move(w.pos)), orient(move(w.orient)) {}
+        WordPos(WordPos&& w) = default;
+        //: m_pos(move(w.m_pos)), m_orient(move(w.m_orient)) {}
 
         // Destructors:
         ~WordPos() = default;
 
         // Operators:
-        WordPos &operator=(const WordPos &rhs) = default;
-        WordPos &operator=(WordPos &&rhs) = default;
-        auto operator<=>(const WordPos &) const = default;
+        WordPos& operator=(const WordPos& rhs) = default;
+
+        WordPos& operator=(WordPos&& rhs) = default;
+
+        std::strong_ordering operator<=>(const WordPos&) const = default;
 
         // Getters:
+
+    };
+
+    struct Letter
+    {
+        char character;
+        orientation_t orientation;
+        bool intersection;
+    };
+}
+
         // we return const reference not to allow to change these values
         pos_t getPos() const {return pos;}
 
@@ -65,26 +91,30 @@ private:
 
 public:
     // Constructors:
-    Word();
+    Word() = delete;
 
-    Word(size_t x, size_t y, orientation_t orient, std::string const &_word);
+    Word(size_t x, size_t y, orientation_t orient, std::string const& _word);
 
     // Copy constructor:
-    Word(const Word &other); //: posAndOrient(other.posAndOrient),
-    //    word(other.word) {}
+    Word(const Word& other);
+    //: m_posAndOrient(other.m_posAndOrient),
+    //    m_word(other.m_word) {}
 
-    // Move construcotr:
-    Word(Word &&other); //: posAndOrient(move(other.posAndOrient)),
-    //    word(move(other.word)) {}
+    // Move constructor:
+    Word(Word&& other) noexcept;
+    //: m_posAndOrient(move(other.m_posAndOrient)),
+    //    m_word(move(other.m_word)) {}
 
     // Destructors:
     ~Word();
 
     // Operators:
-    Word &operator=(const Word &rhs);
-    Word &operator=(Word &&rhs);
+    Word& operator=(const Word& rhs);
 
-    bool operator==(const Word &other) const;
+    Word& operator=(Word&& rhs) noexcept;
+
+    bool operator==(const Word& other) const;
+
 
     std::weak_ordering operator<=>(const Word &other) const;
 
@@ -100,78 +130,63 @@ public:
     size_t length() const;
 
     RectArea rect_area() const;
+
+    inline size_t getX() const
+    { return m_posAndOrient.getPos().first; }
+
+    inline size_t getY() const
+    { return m_posAndOrient.getPos().second; }
 };
 
-class RectArea
+class Crossword
 {
 private:
-    pos_t topLeft, bottomRight;
-    dim_t areaSize;
-    bool atLeastOneElemExist;
+    std::vector<Word> m_words;
+    RectArea m_rectArea;
+    std::map<pos_t, Letter> m_letters;
 
-    dim_t calcArea();
-    point_placement isInside(pos_t) const;
-    void extend_to_left_or_right(pos_t);
 public:
-    RectArea();
-    RectArea(pos_t _topLeft, pos_t _bottomRight);
-    RectArea(const RectArea &);
-    RectArea(RectArea&&);
+    // Constructors:
+    Crossword() = delete;
 
-    ~RectArea();
+    Crossword(const Crossword& other) = default;
 
-    RectArea &operator=(const RectArea &);
-    RectArea &operator=(RectArea &&);
+    Crossword(Crossword&& other) noexcept;
 
-    RectArea &operator*=(const RectArea &rhs);
-    const RectArea operator*(const RectArea &rhs) const;
+    explicit Crossword(const Word& word);
+
+    Crossword(const Word& firstWord, const std::vector<Word>& words);
+
+    // Destructors:
+    inline ~Crossword() = default;
+
+    void insert_word(const Word& word);
 
     // Getters:
-    pos_t get_left_top() const;
-    pos_t get_right_bottom() const;
     dim_t size() const;
-    bool empty() const;
 
-    // Setters:
-    void set_left_top(pos_t);
-    void set_right_bottom(pos_t);
+    dim_t word_count() const;
 
-    // embrace - powieksza obszar zeby objal tez nowy punkt 
-    void embrace(pos_t);
+    // Operators:
+    Crossword& operator=(const Crossword& other) = default;
+
+    Crossword& operator=(Crossword&& other) noexcept;
+
+    Crossword operator+(const Crossword& other) const;
+
+    Crossword operator+=(const Crossword& other) const;
+
+    friend std::ostream&
+    operator<<(std::ostream& out, const Crossword& crossword);
+
+private:
+    bool collides(const Word& word) const;
+
 };
 
-// class Crossword
-// {
-// private:
-//     std::vector<Word> m_words;
-//     RectArea m_rectArea;
+inline const RectArea DEFAULT_EMPTY_RECT_AREA(pos_t(1, 1), pos_t(0, 0));
+inline char DEFAULT_CHAR = '?';
+inline char CROSSWORD_BACKGROUND = '.';
+inline std::string DEFAULT_WORD = "?";
 
-// public:
-//     // Constructors:
-//     Crossword() = delete;
-//     Crossword(const Word &word);
-//     Crossword(const Word &firstWord, const std::vector<Word> &words);
-//     Crossword(Word &&word) noexcept;
-//     Crossword(Word &&firstWord, std::vector<Word> &&words) noexcept;
-
-//     // Destructors:
-//     ~Crossword() = default;
-
-//     void insert_word(const Word &word);
-
-//     // Getters:
-//     dim_t size() const;
-//     dim_t word_count() const;
-
-//     // Operators:
-//     Crossword &operator=(const Crossword &other);
-//     Crossword &operator=(Crossword &&other) noexcept;
-//     Crossword operator+(const Crossword &other);
-//     Crossword operator+=(const Crossword &crossword);
-//     friend std::ostream &operator<<(std::ostream &out, const Crossword &crossword);
-
-// private:
-//     bool colides(const Word &word);
-// };
-
-#endif // III_PROJEKTCPP_KRZYZOWKA_CROSSWORD_H
+#endif //III_PROJEKTCPP_KRZYZOWKA_CROSSWORD_H
