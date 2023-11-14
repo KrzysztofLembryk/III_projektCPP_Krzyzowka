@@ -9,9 +9,11 @@ using dim_t = std::pair<size_t, size_t>;
 
 enum orientation_t : bool
 {
-    H = true,
-    V = false
+    H = false,
+    V = true
 };
+
+const RectArea EMPTY_AREA(pos_t(2, 0), pos_t(1, 0));
 
 namespace
 {
@@ -136,38 +138,38 @@ public:
     void embrace(pos_t);
 };
 
-class Crossword
-{
-private:
-    std::vector<Word> m_words;
-    RectArea m_rectArea;
+// class Crossword
+// {
+// private:
+//     std::vector<Word> m_words;
+//     RectArea m_rectArea;
 
-public:
-    // Constructors:
-    Crossword() = delete;
-    Crossword(const Word &word);
-    Crossword(const Word &firstWord, const std::vector<Word> &words);
-    Crossword(Word &&word) noexcept;
-    Crossword(Word &&firstWord, std::vector<Word> &&words) noexcept;
+// public:
+//     // Constructors:
+//     Crossword() = delete;
+//     Crossword(const Word &word);
+//     Crossword(const Word &firstWord, const std::vector<Word> &words);
+//     Crossword(Word &&word) noexcept;
+//     Crossword(Word &&firstWord, std::vector<Word> &&words) noexcept;
 
-    // Destructors:
-    ~Crossword() = default;
+//     // Destructors:
+//     ~Crossword() = default;
 
-    void insert_word(const Word &word);
+//     void insert_word(const Word &word);
 
-    // Getters:
-    dim_t size() const;
-    dim_t word_count() const;
+//     // Getters:
+//     dim_t size() const;
+//     dim_t word_count() const;
 
-    // Operators:
-    Crossword &operator=(const Crossword &other);
-    Crossword &operator=(Crossword &&other) noexcept;
-    Crossword operator+(const Crossword &other);
-    Crossword operator+=(const Crossword &crossword);
-    friend std::ostream &operator<<(std::ostream &out, const Crossword &crossword);
+//     // Operators:
+//     Crossword &operator=(const Crossword &other);
+//     Crossword &operator=(Crossword &&other) noexcept;
+//     Crossword operator+(const Crossword &other);
+//     Crossword operator+=(const Crossword &crossword);
+//     friend std::ostream &operator<<(std::ostream &out, const Crossword &crossword);
 
-private:
-    bool colides(const Word &word);
-};
+// private:
+//     bool colides(const Word &word);
+// };
 
 #endif // III_PROJEKTCPP_KRZYZOWKA_CROSSWORD_H

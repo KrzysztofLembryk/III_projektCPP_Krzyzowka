@@ -21,7 +21,7 @@ using dim_t = pair<size_t, size_t>;
 namespace
 {
     constexpr char NOT_A_LETTER = '?';
-    const RectArea EMPTY_AREA(pos_t(2, 0), pos_t(1, 0));
+    //const RectArea EMPTY_AREA(pos_t(2, 0), pos_t(1, 0));
     // constexpr string DEFAULT_STRING("?");
 
     // -----WORD_POS CLASS-----
@@ -320,56 +320,56 @@ void RectArea::embrace(pos_t p)
 
 // -----CROSSWORD CLASS-----
 
-Crossword::Crossword(const Word &word)
-{
-    m_words.push_back(word);
-    // rectAreaInit
-}
+// Crossword::Crossword(const Word &word)
+// {
+//     m_words.push_back(word);
+//     // rectAreaInit
+// }
 
-Crossword::Crossword(const Word &firstWord, const std::vector<Word> &words)
-{
-}
+// Crossword::Crossword(const Word &firstWord, const std::vector<Word> &words)
+// {
+// }
 
-Crossword::Crossword(Word &&word) noexcept
-{
-}
+// Crossword::Crossword(Word &&word) noexcept
+// {
+// }
 
-Crossword::Crossword(Word &&firstWord, std::vector<Word> &&words) noexcept
-{
-}
+// Crossword::Crossword(Word &&firstWord, std::vector<Word> &&words) noexcept
+// {
+// }
 
-void Crossword::insert_word(const Word &word)
-{
-}
+// void Crossword::insert_word(const Word &word)
+// {
+// }
 
-dim_t Crossword::size() const
-{
-}
+// dim_t Crossword::size() const
+// {
+// }
 
-dim_t Crossword::word_count() const
-{
-}
+// dim_t Crossword::word_count() const
+// {
+// }
 
-bool Crossword::colides(const Word &word)
-{
-}
+// bool Crossword::colides(const Word &word)
+// {
+// }
 
-Crossword Crossword::operator+(const Crossword &other)
-{
-}
+// Crossword Crossword::operator+(const Crossword &other)
+// {
+// }
 
-Crossword Crossword::operator+=(const Crossword &crossword)
-{
-}
+// Crossword Crossword::operator+=(const Crossword &crossword)
+// {
+// }
 
-std::ostream &operator<<(std::ostream &out, const Crossword &crossword)
-{
-}
+// std::ostream &operator<<(std::ostream &out, const Crossword &crossword)
+// {
+// }
 
-Crossword &Crossword::operator=(const Crossword &other)
-{
-}
+// Crossword &Crossword::operator=(const Crossword &other)
+// {
+// }
 
-Crossword &Crossword::operator=(Crossword &&other) noexcept
-{
-}
+// Crossword &Crossword::operator=(Crossword &&other) noexcept
+// {
+// }
