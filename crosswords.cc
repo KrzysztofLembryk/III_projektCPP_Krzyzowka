@@ -88,8 +88,6 @@ RectArea Word::rect_area() const
 
 // -----RECT AREA CLASS-----
 
-// -----RECT_AREA CLASS-----
-
 point_placement RectArea::isInside(pos_t p) const
 {
     if(atLeastOneElemExist)
