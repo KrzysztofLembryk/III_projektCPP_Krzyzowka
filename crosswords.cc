@@ -347,7 +347,7 @@ bool Crossword::insert_word(const Word& word)
         size_t y = word.getY();
         orientation_t o = word.get_orientation();
 
-        for (int i = 0; i < word.length(); i++)
+        for (size_t i = 0; i < word.length(); i++)
         {
             if (o == H)
             {
@@ -394,7 +394,7 @@ bool Crossword::collides(const Word& word) const
 
     if (o == H)
     {
-        for (int i = 0; i < word.length(); i++)
+        for (size_t i = 0; i < word.length(); i++)
         {
             if (i != word.length() - 1 && x + i == SIZE_MAX)
             { return true; }
@@ -428,7 +428,7 @@ bool Crossword::collides(const Word& word) const
         { return true; }
     } else // (o == V)
     {
-        for (int i = 0; i < word.length(); i++)
+        for (size_t i = 0; i < word.length(); i++)
         {
             if (i != word.length() - 1 && y + i == SIZE_MAX)
             { return true; }
