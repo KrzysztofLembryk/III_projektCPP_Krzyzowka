@@ -124,9 +124,18 @@ void operators_Word_TEST()
     assert((w1 <=> w2) == 0);
     assert((w3 <=> w1) > 0);
     assert((w3 <=> w5) < 0);
+    assert(w1 >= Word(0, 1 , V,"xd"));
+    assert(w1 <= Word(1, 2, H, "dx"));
+    assert(w1 == Word(1, 1, H, "dsd"));
 
     printEndTest("OPERATORS");
 }
+
+void RectArea_TEST()
+{
+    
+}
+
 
 int main()
 {
