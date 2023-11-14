@@ -83,7 +83,13 @@ RectArea getRA(pos_t topLeft, pos_t btmRight)
     return RectArea(topLeft, btmRight);
 }
 
-
+void printRA(RectArea const &ra)
+{
+    cout << "topLeft: (" << ra.get_left_top().first << ", " << 
+        ra.get_left_top().second << "), ";
+    cout << "btmRight: (" << ra.get_right_bottom().first << ", " <<
+        ra.get_right_bottom().second << ")\n";
+}
 
 void setBase(RectArea &baseArea)
 {

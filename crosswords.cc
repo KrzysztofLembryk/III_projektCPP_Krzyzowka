@@ -219,7 +219,7 @@ RectArea &RectArea::operator*=(const RectArea &rhs)
         {
             pos_t newTopLeft(max(topLeft.first, rhs.topLeft.first), 
                 max(topLeft.second, rhs.topLeft.second));
-            pos_t newBottomRight(min(topLeft.first, rhs.topLeft.first),
+            pos_t newBottomRight(min(bottomRight.first, rhs.bottomRight.first),
                 min(bottomRight.second, rhs.bottomRight.second));
 
             *this = RectArea(newTopLeft, newBottomRight);
