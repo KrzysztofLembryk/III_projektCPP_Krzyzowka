@@ -20,30 +20,6 @@ void printEndTest(string method = "")
     cout << "--------------------\n";
 }
 
-// void move_copy_constructor_Word_TEST()
-// {
-//         printStartTest("MOVE_COPY", "WORD");
-
-//         Word w1(1, 1, H, "Krakow");
-//         Word w2(move(w1));
-
-//         assert(w2.get_word().compare("Krakow") == 0);
-//         assert(w1.get_word().compare("") == 0);
-
-//         Word wx(Word(1, 1, H, "Warszawa"));
-
-//         assert(wx.get_word().compare("Warszawa") == 0);
-
-//         Word w3(w2);
-
-//         assert(w3.get_word().compare(w2.get_word()) == 0);
-
-//         printEndTest("MOVE_COPY");
-//         cout << "\n";
-// }
-
-
-
 void operators_Word_TEST()
 {
     printStartTest("ALL OPERATORS", "WORD");
