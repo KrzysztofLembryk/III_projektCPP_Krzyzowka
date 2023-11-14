@@ -8,8 +8,6 @@ using std::move;
 using std::string;
 using std::vector;
 
-const RectArea EMPTY_AREA(pos_t(2, 0), pos_t(1, 0));
-
 void printStartTest(string method, string cls)
 {
     cout << "->starting " << method << " tests for " + cls + " class\n";
@@ -146,7 +144,7 @@ void RA_operator_TEST()
         getRA(pos_t(2, 2), pos_t(3,3))));
     
     assert(ra_equals(baseArea * getRA(pos_t(6, 2), pos_t(7,5)), 
-        EMPTY_AREA));
+        DEFAULT_EMPTY_RECT_AREA));
 
     assert(ra_equals(baseArea * getRA(pos_t(3, 4), pos_t(4,6)), 
         getRA(pos_t(3, 4), pos_t(4,5))));

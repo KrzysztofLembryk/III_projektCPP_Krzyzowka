@@ -1,6 +1,8 @@
 #include <stdexcept>
 #include "crosswords.h"
 
+namespace {
+
 #define LETTER_EXISTS(y, x) m_letters.count(pos_t(y, x)) != 0
 #define LETTER(y, x) m_letters.at(pos_t(y, x))
 
@@ -13,8 +15,7 @@ using std::string;
 using std::min;
 using std::max;
 
-using pos_t = pair<size_t, size_t>;
-using dim_t = pair<size_t, size_t>;
+}
 
 // -----WORD CLASS-----
 
@@ -172,7 +173,7 @@ RectArea &RectArea::operator*=(const RectArea &rhs)
             *this = RectArea(topLeft, topLeft);
         }
         else
-            *this = EMPTY_AREA;
+            *this = DEFAULT_EMPTY_RECT_AREA;
     }
     else if(rhs.empty())
     {
@@ -181,7 +182,7 @@ RectArea &RectArea::operator*=(const RectArea &rhs)
             *this = RectArea(rhs.topLeft, rhs.topLeft);
         }
         else
-            *this = EMPTY_AREA;
+            *this = DEFAULT_EMPTY_RECT_AREA;
     }
     else
     {
@@ -190,7 +191,7 @@ RectArea &RectArea::operator*=(const RectArea &rhs)
             bottomRight.first < rhs.topLeft.first ||
             bottomRight.second < rhs.topLeft.second)
         {
-            *this = EMPTY_AREA;
+            *this = DEFAULT_EMPTY_RECT_AREA;
         }
         else
         {
