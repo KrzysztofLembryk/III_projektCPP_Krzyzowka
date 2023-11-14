@@ -11,9 +11,10 @@ using dim_t = std::pair<size_t, size_t>;
 
 enum orientation_t : bool
 {
-    H = true,
-    V = false
+    H = false,
+    V = true
 };
+
 
 namespace
 {
@@ -22,6 +23,14 @@ namespace
         ON_THE_RIGHT, ON_THE_LEFT, OVER, UNDER, INSIDE, NO_AREA
     };
 
+    
+}
+
+class RectArea;
+
+class Word
+{
+private:
     class WordPos
     {
     private:
@@ -61,11 +70,7 @@ namespace
         std::strong_ordering operator<=>(const WordPos&) const = default;
 
         // Getters:
-        inline pos_t getPos() const
-        { return m_pos; }
 
-        inline orientation_t getOrient() const
-        { return m_orient; }
     };
 
     struct Letter
@@ -76,60 +81,13 @@ namespace
     };
 }
 
-class RectArea
-{
-private:
-    pos_t m_topLeft, m_bottomRight;
-    pos_t m_areaSize;
-    bool m_atLeastOneElemExist;
+        // we return const reference not to allow to change these values
+        pos_t getPos() const {return pos;}
 
-    pos_t calcArea();
-
-    point_placement isInside(pos_t) const;
-
-    void extend_to_left_or_right(pos_t);
-
-public:
-    RectArea() = delete;
-
-    RectArea(pos_t _topLeft, pos_t _bottomRight);
-
-    RectArea(const RectArea&);
-
-    RectArea(RectArea&&) noexcept;
-
-    ~RectArea();
-
-    RectArea& operator=(const RectArea&);
-
-    RectArea& operator=(RectArea&&) noexcept;
-
-    RectArea& operator*=(const RectArea& rhs);
-
-    RectArea operator*(const RectArea& rhs) const;
-
-    // Getters:
-    pos_t get_left_top() const;
-
-    pos_t get_right_bottom() const;
-
-    pos_t size() const;
-
-    bool empty() const;
-
-    // Setters:
-    void set_left_top(pos_t);
-
-    void set_right_bottom(pos_t);
-
-    void embrace(pos_t);
-};
-
-class Word
-{
-private:
-    WordPos m_posAndOrient;
-    std::string m_word;
+        orientation_t getOrient() const {return orient;}
+    };
+    WordPos posAndOrient;
+    std::string word;
 
 public:
     // Constructors:
@@ -157,7 +115,8 @@ public:
 
     bool operator==(const Word& other) const;
 
-    auto operator<=>(const Word& other) const;
+
+    std::weak_ordering operator<=>(const Word &other) const;
 
     // Getters:
     pos_t get_start_position() const;

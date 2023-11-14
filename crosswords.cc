@@ -43,7 +43,8 @@ bool Word::operator==(const Word& other) const
     return m_posAndOrient == other.m_posAndOrient;
 }
 
-auto Word::operator<=>(const Word& other) const
+
+std::weak_ordering Word::operator<=>(const Word &other) const
 {
     return m_posAndOrient <=> other.m_posAndOrient;
 }
@@ -214,12 +215,11 @@ RectArea& RectArea::operator*=(const RectArea& rhs)
             *this = DEFAULT_EMPTY_RECT_AREA;
         } else
         {
-            pos_t newTopLeft(max(m_topLeft.first, rhs.m_topLeft.first),
-                             max(m_topLeft.second, rhs.m_topLeft.second));
-            pos_t newBottomRight(min(m_topLeft.first, rhs.m_topLeft.first),
-                                 min(m_bottomRight.second,
-                                     rhs.m_bottomRight.second));
-
+            pos_t newTopLeft(max(topLeft.first, rhs.topLeft.first), 
+                max(topLeft.second, rhs.topLeft.second));
+            pos_t newBottomRight(min(bottomRight.first, rhs.bottomRight.first),
+                min(bottomRight.second, rhs.bottomRight.second));
+          
             *this = RectArea(newTopLeft, newBottomRight);
         }
     }
@@ -254,7 +254,7 @@ pos_t RectArea::size() const
 
 bool RectArea::empty() const
 {
-    return m_areaSize == pos_t(0, 0);
+    return areaSize == dim_t(0, 0);
 }
 
 // Setters:
