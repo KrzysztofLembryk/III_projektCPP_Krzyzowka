@@ -34,7 +34,6 @@ class RectArea
 private:
     pos_t topLeft, bottomRight;
     dim_t areaSize;
-    bool atLeastOneElemExist;
 
     dim_t calcArea();
     point_placement isInside(pos_t) const;

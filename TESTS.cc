@@ -127,6 +127,30 @@ void RA_embrace_TEST()
         baseArea.embrace(posToEmbraceVec[i]);
         assert(ra_equals(baseArea, getRA(topLeftRes[i], btmRightRes[i])));
     }
+
+    RectArea ra5(pos_t(2, 3), pos_t(10, 7));
+    ra5.embrace(pos_t(4, 5));
+
+    assert(ra5.size() == dim_t(9, 5));
+    
+    ra5.embrace(pos_t(1, 2));
+    assert(ra5.size() == dim_t(10, 6));
+
+    RectArea ra4(pos_t(1, 1), pos_t(4, 4));
+    
+    ra4.embrace(pos_t(2, 0));
+    assert(ra4.size() == dim_t(4, 5));
+
+    RectArea ra3(pos_t(1, 1), pos_t(4, 4));
+
+    ra3.embrace(pos_t(5, 0));
+    assert(ra3.size() == dim_t(5, 5));
+
+    RectArea ra2(pos_t(2, 2), pos_t(5, 5));
+
+    ra2.embrace(pos_t(0, 7));
+    assert(ra2.size() == dim_t(6, 6));
+
     printEndTest();
     
 }

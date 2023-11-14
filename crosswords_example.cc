@@ -10,34 +10,39 @@
 #include "crosswords.h"
 
 #define WORD_BASIC_ASSERTS(w, sp, ep, o, ci, c, l) \
-do { \
-    assert(w.get_start_position() == sp); \
-    assert(w.get_end_position() == ep); \
-    assert(w.get_orientation() == o); \
-    assert(w.at(ci) == c); \
-    assert(w.length() == l); \
-} while (0)
+    do                                             \
+    {                                              \
+        assert(w.get_start_position() == sp);      \
+        assert(w.get_end_position() == ep);        \
+        assert(w.get_orientation() == o);          \
+        assert(w.at(ci) == c);                     \
+        assert(w.length() == l);                   \
+    } while (0)
 
 #define RECT_AREA_BASE_ASSERTS(ra, lt, rb, s, e) \
-do { \
-    assert(ra.get_left_top() == lt); \
-    assert(ra.get_right_bottom() == rb); \
-    assert(ra.size() == s); \
-    assert(ra.empty() == e); \
-} while(0)
+    do                                           \
+    {                                            \
+        assert(ra.get_left_top() == lt);         \
+        assert(ra.get_right_bottom() == rb);     \
+        assert(ra.size() == s);                  \
+        assert(ra.empty() == e);                 \
+    } while (0)
 
 #define CROSSWORD_DIM_ASSERTS(cr, sz, cnt) \
-do { \
-    assert(cr.size() == sz); \
-    assert(cr.word_count() == cnt); \
-} while(0)
+    do                                     \
+    {                                      \
+        assert(cr.size() == sz);           \
+        assert(cr.word_count() == cnt);    \
+    } while (0)
 
-namespace {
+namespace
+{
     using orientation_t::H;
     using orientation_t::V;
     using std::cout;
 
-    void word_tests() {
+    void word_tests()
+    {
         Word w1(1, 1, H, "COMPUTER");
         Word w2(3, 1, V, "MEMORY");
         Word w3(1, 5, V, "");
@@ -56,9 +61,16 @@ namespace {
         assert(w2 == Word(3, 1, V, "MNEMONIC"));
     }
 
-    void rect_area_tests() {
+    void printRA(RectArea const &ra)
+    {
+        cout << "topLeft: (" << ra.get_left_top().first << ", " << ra.get_left_top().second << "), ";
+        cout << "btmRight: (" << ra.get_right_bottom().first << ", " << ra.get_right_bottom().second << ")\n";
+    }
+
+    void rect_area_tests()
+    {
         RectArea ra1(pos_t(1, 2), pos_t(10, 7));
-        
+
         RECT_AREA_BASE_ASSERTS(ra1, pos_t(1, 2), pos_t(10, 7), dim_t(10, 6), false);
         ra1.set_left_top(pos_t(2, 3));
         RECT_AREA_BASE_ASSERTS(ra1, pos_t(2, 3), pos_t(10, 7), dim_t(9, 5), false);
@@ -79,6 +91,7 @@ namespace {
         RectArea ra5(pos_t(2, 3), pos_t(10, 7));
         ra5.embrace(pos_t(4, 5));
         RECT_AREA_BASE_ASSERTS(ra5, pos_t(2, 3), pos_t(10, 7), dim_t(9, 5), false);
+        
         ra5.embrace(pos_t(1, 2));
         RECT_AREA_BASE_ASSERTS(ra5, pos_t(1, 2), pos_t(10, 7), dim_t(10, 6), false);
 
@@ -90,7 +103,8 @@ namespace {
                                dim_t(1, 8), false);
     }
 
-    void crossword_tests() {
+    void crossword_tests()
+    {
         Word w1(1, 1, H, "computer");
         Word w2(3, 1, V, "memory");
         Crossword cr1(w1, {w2});
@@ -126,9 +140,10 @@ namespace {
         Crossword cr4(Word(2, 5, V, "C++20"), {Word(0, 8, H, "C17")});
         cout << cr4;
     }
-}   /* anonymous namespace */
+} /* anonymous namespace */
 
-int main() {
+int main()
+{
     word_tests();
     rect_area_tests();
     crossword_tests();

@@ -97,7 +97,7 @@ RectArea Word::rect_area() const
 
 point_placement RectArea::isInside(pos_t p) const
 {
-    if(atLeastOneElemExist)
+    if(!this->empty())
     {
         if (p.second < topLeft.second)
             return OVER;
@@ -113,17 +113,13 @@ point_placement RectArea::isInside(pos_t p) const
 }
 
 dim_t RectArea::calcArea()
-{
-    atLeastOneElemExist = true;
-    
+{   
     if (bottomRight.first < topLeft.first ||
         bottomRight.second < topLeft.second)
         {
-            atLeastOneElemExist = false;
             return dim_t(0, 0);
         }
     
-
     return dim_t(bottomRight.first - topLeft.first + SHIFT_VAL,
                  bottomRight.second - topLeft.second + SHIFT_VAL);
 }
@@ -154,7 +150,6 @@ RectArea &RectArea::operator=(const RectArea &rhs)
         topLeft = rhs.topLeft;
         bottomRight = rhs.bottomRight;
         areaSize = rhs.areaSize;
-        atLeastOneElemExist = rhs.atLeastOneElemExist;
     }
     return *this;
 }
@@ -166,30 +161,15 @@ RectArea &RectArea::operator=(RectArea &&rhs)
         topLeft = move(rhs.topLeft);
         bottomRight = move(rhs.bottomRight);
         areaSize = move(rhs.areaSize);
-        atLeastOneElemExist = move(rhs.atLeastOneElemExist);
     }
     return *this;
 }
 
 RectArea &RectArea::operator*=(const RectArea &rhs)
 {
-    if (this->empty())
+    if (this->empty() || rhs.empty())
     {
-        if(atLeastOneElemExist && rhs.isInside(topLeft) == INSIDE)
-        {
-            *this = RectArea(topLeft, topLeft);
-        }
-        else
-            *this = DEFAULT_EMPTY_RECT_AREA;
-    }
-    else if(rhs.empty())
-    {
-        if(rhs.atLeastOneElemExist && this->isInside(rhs.topLeft) == INSIDE)
-        {
-            *this = RectArea(rhs.topLeft, rhs.topLeft);
-        }
-        else
-            *this = DEFAULT_EMPTY_RECT_AREA;
+        *this = DEFAULT_EMPTY_RECT_AREA;
     }
     else
     {
@@ -267,9 +247,7 @@ void RectArea::extend_to_left_or_right(pos_t p)
 
 void RectArea::embrace(pos_t p)
 {
-    // RectArea is empty when has only one point, meaning topLeft = bottomRight
-    // or when is null set
-    if (!this->empty() || (this->empty() && atLeastOneElemExist))
+    if (!this->empty())
     {
         point_placement p_pos = isInside(p);
 
@@ -296,13 +274,13 @@ void RectArea::embrace(pos_t p)
             break;
         }
     }
-    else if(!atLeastOneElemExist)
+    else
     {
         topLeft = p;
         bottomRight = p;   
     }
 
-    this->calcArea();
+    areaSize = calcArea();
 }
 
 // -----CROSSWORD CLASS-----
@@ -310,9 +288,7 @@ void RectArea::embrace(pos_t p)
 Crossword::Crossword(Crossword&& other) noexcept
         : m_words(std::move(other.m_words)),
           m_rectArea(std::move(other.m_rectArea)),
-          m_letters(std::move(other.m_letters))
-{
-}
+          m_letters(std::move(other.m_letters)) {}
 
 Crossword& Crossword::operator=(Crossword&& other) noexcept
 {
