@@ -131,6 +131,12 @@ void operators_Word_TEST()
     printEndTest("OPERATORS");
 }
 
+void RectArea_TEST()
+{
+    
+}
+
+
 int main()
 {
 

@@ -126,7 +126,7 @@ point_placement RectArea::isInside(pos_t p) const
     return NO_AREA;
 }
 
-pos_t RectArea::calcArea()
+dim_t RectArea::calcArea()
 {
     atLeastOneElemExist = true;
     
@@ -134,10 +134,10 @@ pos_t RectArea::calcArea()
         bottomRight.second < topLeft.second)
         {
             atLeastOneElemExist = false;
-            return pos_t(0, 0);
+            return dim_t(0, 0);
         }
         
-    return pos_t(bottomRight.first - topLeft.first,
+    return dim_t(bottomRight.first - topLeft.first,
                  bottomRight.second - topLeft.second);
 }
 
@@ -247,7 +247,7 @@ pos_t RectArea::get_right_bottom() const
     return bottomRight;
 }
 
-pos_t RectArea::size() const
+dim_t RectArea::size() const
 {
     return areaSize;
 }

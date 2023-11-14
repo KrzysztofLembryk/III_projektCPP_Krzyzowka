@@ -102,10 +102,10 @@ class RectArea
 {
 private:
     pos_t topLeft, bottomRight;
-    pos_t areaSize;
+    dim_t areaSize;
     bool atLeastOneElemExist;
 
-    pos_t calcArea();
+    dim_t calcArea();
     point_placement isInside(pos_t) const;
     void extend_to_left_or_right(pos_t);
 public:
@@ -125,7 +125,7 @@ public:
     // Getters:
     pos_t get_left_top() const;
     pos_t get_right_bottom() const;
-    pos_t size() const;
+    dim_t size() const;
     bool empty() const;
 
     // Setters:
