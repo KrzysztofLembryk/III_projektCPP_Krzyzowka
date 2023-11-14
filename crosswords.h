@@ -1,5 +1,5 @@
-#ifndef III_PROJEKTCPP_KRZYZOWKA_CROSSWORD_H
-#define III_PROJEKTCPP_KRZYZOWKA_CROSSWORD_H
+#ifndef CROSWORD_H
+#define CROSSWORD_H
 
 #include <map>
 #include <vector>
@@ -23,10 +23,51 @@ namespace
         ON_THE_RIGHT, ON_THE_LEFT, OVER, UNDER, INSIDE, NO_AREA
     };
 
-    
+       struct Letter
+    {
+        char character;
+        orientation_t orientation;
+        bool intersection;
+    };
 }
 
-class RectArea;
+class RectArea
+{
+private:
+    pos_t topLeft, bottomRight;
+    dim_t areaSize;
+    bool atLeastOneElemExist;
+
+    dim_t calcArea();
+    point_placement isInside(pos_t) const;
+    void extend_to_left_or_right(pos_t);
+public:
+    RectArea();
+    RectArea(pos_t _topLeft, pos_t _bottomRight);
+    RectArea(const RectArea &);
+    RectArea(RectArea&&);
+
+    ~RectArea();
+
+    RectArea &operator=(const RectArea &);
+    RectArea &operator=(RectArea &&);
+
+    RectArea &operator*=(const RectArea &rhs);
+    const RectArea operator*(const RectArea &rhs) const;
+
+    // Getters:
+    pos_t get_left_top() const;
+    pos_t get_right_bottom() const;
+    dim_t size() const;
+    bool empty() const;
+
+    // Setters:
+    void set_left_top(pos_t);
+    void set_right_bottom(pos_t);
+
+    // embrace - powieksza obszar zeby objal tez nowy punkt 
+    void embrace(pos_t);
+};
 
 class Word
 {
@@ -34,20 +75,20 @@ private:
     class WordPos
     {
     private:
-        pos_t m_pos;
-        orientation_t m_orient;
+        pos_t pos;
+        orientation_t orient;
 
     public:
         // Constructors:
         WordPos() = delete;
 
         inline WordPos(size_t x, size_t y, orientation_t _orient)
-                : m_pos(x, y), m_orient(_orient)
+                : pos(x, y), orient(_orient)
         {
         }
 
         inline WordPos(pos_t const& p, orientation_t const& o)
-                : m_pos(p), m_orient(o)
+                : pos(p), orient(o)
         {
         }
 
@@ -70,22 +111,15 @@ private:
         std::strong_ordering operator<=>(const WordPos&) const = default;
 
         // Getters:
-
-    };
-
-    struct Letter
-    {
-        char character;
-        orientation_t orientation;
-        bool intersection;
-    };
-}
-
-        // we return const reference not to allow to change these values
-        pos_t getPos() const {return pos;}
+         pos_t getPos() const {return pos;}
 
         orientation_t getOrient() const {return orient;}
+
     };
+
+ 
+
+       
     WordPos posAndOrient;
     std::string word;
 
@@ -132,11 +166,14 @@ public:
     RectArea rect_area() const;
 
     inline size_t getX() const
-    { return m_posAndOrient.getPos().first; }
+    { return posAndOrient.getPos().first; }
 
     inline size_t getY() const
-    { return m_posAndOrient.getPos().second; }
+    { return posAndOrient.getPos().second; }
 };
+
+
+
 
 class Crossword
 {
@@ -189,4 +226,4 @@ inline char DEFAULT_CHAR = '?';
 inline char CROSSWORD_BACKGROUND = '.';
 inline std::string DEFAULT_WORD = "?";
 
-#endif //III_PROJEKTCPP_KRZYZOWKA_CROSSWORD_H
+#endif //CROSSWORD_H
