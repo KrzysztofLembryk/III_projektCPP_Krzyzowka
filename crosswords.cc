@@ -1,4 +1,3 @@
-#include <typeinfo>
 #include <stdexcept>
 #include "crosswords.h"
 
