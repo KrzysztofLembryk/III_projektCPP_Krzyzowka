@@ -197,7 +197,7 @@ public:
     // Destructors:
     inline ~Crossword() = default;
 
-    void insert_word(const Word& word);
+    bool insert_word(const Word& word);
 
     // Getters:
     dim_t size() const;

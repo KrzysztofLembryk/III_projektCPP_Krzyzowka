@@ -333,7 +333,7 @@ Crossword::Crossword(const Word& firstWord, const std::vector<Word>& words)
     }
 }
 
-void Crossword::insert_word(const Word& word)
+bool Crossword::insert_word(const Word& word)
 {
     if (!collides(word))
     {
@@ -361,7 +361,9 @@ void Crossword::insert_word(const Word& word)
                         m_letters.count(pos_t(y, x + i)) != 0};
             }
         }
+        return true;
     }
+    return false;
 }
 
 dim_t Crossword::size() const
