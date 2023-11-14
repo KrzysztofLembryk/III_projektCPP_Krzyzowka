@@ -100,6 +100,13 @@ size_t Word::length() const
     return word.size();
 }
 
+RectArea Word::rect_area() const
+{
+    return RectArea(pos_t(posAndOrient.getPos()), 
+        pos_t(this->get_end_position()));
+
+}
+
 // -----RECT_AREA CLASS-----
 
 point_placement RectArea::isInside(pos_t p) const

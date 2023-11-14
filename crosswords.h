@@ -94,6 +94,8 @@ public:
     char at(size_t idx) const;
 
     size_t length() const;
+
+    RectArea rect_area() const;
 };
 
 class RectArea
