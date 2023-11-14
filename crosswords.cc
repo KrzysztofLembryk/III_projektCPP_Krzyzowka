@@ -18,6 +18,8 @@ using std::max;
 using pos_t = pair<size_t, size_t>;
 using dim_t = pair<size_t, size_t>;
 
+const RectArea EMPTY_AREA(pos_t(2, 0), pos_t(1, 0));
+
 namespace
 {
     constexpr char NOT_A_LETTER = '?';
@@ -62,7 +64,7 @@ bool Word::operator==(const Word &other) const
     return posAndOrient == other.posAndOrient;
 }
 
-auto Word::operator<=>(const Word &other) const
+std::weak_ordering Word::operator<=>(const Word &other) const
 {
     return posAndOrient <=> other.posAndOrient;
 }

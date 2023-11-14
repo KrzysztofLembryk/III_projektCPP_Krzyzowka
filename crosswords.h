@@ -13,7 +13,6 @@ enum orientation_t : bool
     V = true
 };
 
-const RectArea EMPTY_AREA(pos_t(2, 0), pos_t(1, 0));
 
 namespace
 {
@@ -55,6 +54,8 @@ namespace
     };
 }
 
+class RectArea;
+
 class Word
 {
 private:
@@ -84,7 +85,7 @@ public:
 
     bool operator==(const Word &other) const;
 
-    auto operator<=>(const Word &other) const;
+    std::weak_ordering operator<=>(const Word &other) const;
 
     // Getters:
     pos_t get_start_position() const;
