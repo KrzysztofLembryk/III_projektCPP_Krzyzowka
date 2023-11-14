@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <cassert>
 #include "crosswords.h"
 
 namespace {
@@ -20,14 +21,16 @@ using std::max;
 // -----WORD CLASS-----
 
 // Constructors:
-Word::Word() = delete;
+//Word::Word() = delete;
 
 Word::Word(size_t x, size_t y, orientation_t orient, std::string const &_word) : 
         posAndOrient(x, y, orient), word(!_word.empty() ? _word : "?") {}
 
+// Copy constructor:
 Word::Word(const Word &other) = default;
 
-Word::Word(Word &&other) = default;
+// Move constructor:
+Word::Word(Word &&other) noexcept = default;
 
 // Destructors:
 Word::~Word() = default;
@@ -35,7 +38,7 @@ Word::~Word() = default;
 // Operators:
 Word &Word::operator=(const Word &rhs) = default;
 
-Word &Word::operator=(Word &&rhs) = default;
+Word &Word::operator=(Word &&rhs) noexcept = default;
 
 bool Word::operator==(const Word &other) const
 {
@@ -70,9 +73,8 @@ orientation_t Word::get_orientation() const
 
 char Word::at(size_t idx) const
 {
-    if (idx < word.size())
-        return word[idx];
-    throw std::invalid_argument("Word - at(idx) - given idx is out of bounds\n");
+    assert(idx < word.size());
+    return word[idx];
 }
 
 size_t Word::length() const
@@ -514,9 +516,4 @@ std::ostream& operator<<(std::ostream& out, const Crossword& crossword)
         out << std::endl;
     }
     return out;
-}
-
-int main()
-{
-    return 0;
 }
