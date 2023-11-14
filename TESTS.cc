@@ -12,11 +12,12 @@ const RectArea EMPTY_AREA(pos_t(2, 0), pos_t(1, 0));
 
 void printStartTest(string method, string cls)
 {
-    cout << "->STARTING " << method << " TESTS FOR " + cls + " CLASS\n";
+    cout << "->starting " << method << " tests for " + cls + " class\n";
 }
 void printEndTest(string method = "")
 {
     cout << method + " TESTS PASSED\n";
+    cout << "--------------------\n";
 }
 
 // void move_copy_constructor_Word_TEST()
@@ -69,7 +70,6 @@ void operators_Word_TEST()
     assert(w1 == Word(1, 1, H, "dsd"));
 
     printEndTest();
-    cout << "--------------------\n";
 }
 
 bool ra_equals(const RectArea &ra, const RectArea &ra2)
@@ -110,7 +110,7 @@ void set_up_vectors(vector<pos_t> &topLeftRes, vector<pos_t> &btmRightRes)
     btmRightRes.push_back(pos_t(5, 5));
 }
 
-void RectArea_embrace_TEST()
+void RA_embrace_TEST()
 {
     printStartTest("EMBRACE", "RECT_AREA");
 
@@ -141,10 +141,10 @@ void RectArea_embrace_TEST()
         assert(ra_equals(baseArea, getRA(topLeftRes[i], btmRightRes[i])));
     }
     printEndTest();
-    cout << "--------------------\n";
+    
 }
 
-void RectArea_operator_TEST()
+void RA_operator_TEST()
 {
     printStartTest("OPERATOR *", "RECT_AREA");
 
@@ -196,13 +196,42 @@ void RectArea_operator_TEST()
     printEndTest();
 }
 
+void RA_other_TESTS()
+{   
+    printStartTest("OTHER", "RECT_AREA");
+
+    RectArea ra1(pos_t(2, 2), pos_t(5, 5));
+    RectArea ra1_copy(ra1);
+    RectArea ra1_move(RectArea(pos_t(2, 2), pos_t(5, 5)));
+    RectArea wrong_ra(pos_t(4, 4), pos_t(1,1));
+
+    assert(ra_equals(ra1, ra1_copy) && ra1.size() == ra1_copy.size());
+    assert(ra_equals(ra1, ra1_move));
+    assert(ra1.size() == dim_t(3, 3));
+    assert(wrong_ra.size() == dim_t(0, 0));
+
+    RectArea ra2(pos_t(1, 1), pos_t(2, 2));
+
+    ra2.set_left_top(pos_t(0, 0));
+    assert(ra2.size() == dim_t(2, 2));
+
+    ra2.set_right_bottom(pos_t(2, 1));
+    assert(ra2.size() == dim_t(2, 1));
+
+    ra2.set_left_top(pos_t(1, 1));
+    assert(ra2.size() == dim_t(1, 0));
+
+    printEndTest();
+}
+
 int main()
 {
 
     // move_copy_constructor_Word_TEST();
     operators_Word_TEST();
-    RectArea_operator_TEST();
-    RectArea_embrace_TEST();
+    RA_operator_TEST();
+    RA_embrace_TEST();
+    RA_other_TESTS();
 
     return 0;
 }
