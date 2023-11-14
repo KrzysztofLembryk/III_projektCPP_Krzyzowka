@@ -254,7 +254,7 @@ dim_t RectArea::size() const
 
 bool RectArea::empty() const
 {
-    return areaSize == pos_t(0, 0);
+    return areaSize == dim_t(0, 0);
 }
 
 // Setters:
