@@ -27,12 +27,6 @@ namespace
         NO_AREA
     };
 
-    struct Letter
-    {
-        char character;
-        orientation_t orientation;
-        bool intersection;
-    };
 }
 
 class RectArea
@@ -174,6 +168,13 @@ public:
 class Crossword
 {
 private:
+    struct Letter
+    {
+        char character;
+        orientation_t orientation;
+        bool intersection;
+    };
+
     std::vector<Word> m_words;
     RectArea m_rectArea;
     std::map<pos_t, Letter> m_letters;
