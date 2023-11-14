@@ -58,6 +58,7 @@ namespace {
 
     void rect_area_tests() {
         RectArea ra1(pos_t(1, 2), pos_t(10, 7));
+        
         RECT_AREA_BASE_ASSERTS(ra1, pos_t(1, 2), pos_t(10, 7), dim_t(10, 6), false);
         ra1.set_left_top(pos_t(2, 3));
         RECT_AREA_BASE_ASSERTS(ra1, pos_t(2, 3), pos_t(10, 7), dim_t(9, 5), false);

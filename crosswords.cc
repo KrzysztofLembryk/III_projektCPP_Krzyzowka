@@ -16,6 +16,8 @@ using std::string;
 using std::min;
 using std::max;
 
+const size_t SHIFT_VAL = 1;
+
 }
 
 // -----WORD CLASS-----
@@ -61,9 +63,9 @@ pos_t Word::get_end_position() const
     pos_t p = posAndOrient.getPos();
 
     if (posAndOrient.getOrient() == H)
-        return pos_t(p.first + word.size(), p.second);
+        return pos_t(p.first + word.size() - SHIFT_VAL, p.second);
     else
-        return pos_t(p.first, p.second + word.size());
+        return pos_t(p.first, p.second + word.size() - SHIFT_VAL);
 }
 
 orientation_t Word::get_orientation() const
@@ -73,8 +75,10 @@ orientation_t Word::get_orientation() const
 
 char Word::at(size_t idx) const
 {
-    assert(idx < word.size());
-    return word[idx];
+    //assert(idx < word.size());
+    if(idx < word.size())
+        return word[idx];
+    return DEFAULT_CHAR;
 }
 
 size_t Word::length() const
@@ -118,9 +122,10 @@ dim_t RectArea::calcArea()
             atLeastOneElemExist = false;
             return dim_t(0, 0);
         }
-        
-    return dim_t(bottomRight.first - topLeft.first,
-                 bottomRight.second - topLeft.second);
+    
+
+    return dim_t(bottomRight.first - topLeft.first + SHIFT_VAL,
+                 bottomRight.second - topLeft.second + SHIFT_VAL);
 }
 
 // Constructors:

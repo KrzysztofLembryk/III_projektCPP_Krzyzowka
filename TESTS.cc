@@ -46,6 +46,19 @@ void operators_Word_TEST()
     printEndTest();
 }
 
+void methods_Word_TEST()
+{   
+    printStartTest("METHODS", "WORD");
+
+    Word w1(1, 1, H, "ALA");
+    Word w2(1, 1, V, "SMOK");
+
+    assert(w1.get_end_position() == pos_t(3, 1));
+    assert(w2.get_end_position() == pos_t(1, 4));
+
+    printEndTest();
+}
+
 bool ra_equals(const RectArea &ra, const RectArea &ra2)
 {
     return (ra.get_left_top() == ra2.get_left_top()) && 
@@ -181,19 +194,19 @@ void RA_other_TESTS()
 
     assert(ra_equals(ra1, ra1_copy) && ra1.size() == ra1_copy.size());
     assert(ra_equals(ra1, ra1_move));
-    assert(ra1.size() == dim_t(3, 3));
+    assert(ra1.size() == dim_t(4, 4));
     assert(wrong_ra.size() == dim_t(0, 0));
 
     RectArea ra2(pos_t(1, 1), pos_t(2, 2));
 
     ra2.set_left_top(pos_t(0, 0));
-    assert(ra2.size() == dim_t(2, 2));
+    assert(ra2.size() == dim_t(3, 3));
 
     ra2.set_right_bottom(pos_t(2, 1));
-    assert(ra2.size() == dim_t(2, 1));
+    assert(ra2.size() == dim_t(3, 2));
 
     ra2.set_left_top(pos_t(1, 1));
-    assert(ra2.size() == dim_t(1, 0));
+    assert(ra2.size() == dim_t(2, 1));
 
     printEndTest();
 }
@@ -203,6 +216,7 @@ int main()
 
     // move_copy_constructor_Word_TEST();
     operators_Word_TEST();
+    methods_Word_TEST();
     RA_operator_TEST();
     RA_embrace_TEST();
     RA_other_TESTS();

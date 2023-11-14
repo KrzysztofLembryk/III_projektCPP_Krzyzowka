@@ -50,7 +50,6 @@ public:
 
     RectArea &operator=(const RectArea &);
     RectArea &operator=(RectArea &&);
-
     RectArea &operator*=(const RectArea &rhs);
     const RectArea operator*(const RectArea &rhs) const;
 
