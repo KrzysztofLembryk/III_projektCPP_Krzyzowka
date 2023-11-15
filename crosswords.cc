@@ -1,68 +1,88 @@
-
-#include <iostream>
-// #include <utility>
-#include <typeinfo>
 #include <stdexcept>
-#include <cassert>
 #include "crosswords.h"
 
-using std::cerr;
-using std::cin;
-using std::cout;
-using std::move;
-using std::pair;
-using std::string;
-using std::min;
-using std::max;
-
-using pos_t = pair<size_t, size_t>;
-using dim_t = pair<size_t, size_t>;
+#define LETTER_EXISTS(y, x) m_letters.count(pos_t(y, x)) != 0
+#define LETTER(y, x) m_letters.at(pos_t(y, x))
 
 namespace
 {
-    constexpr char NOT_A_LETTER = '?';
-    const RectArea EMPTY_AREA(pos_t(2, 0), pos_t(1, 0));
-    // constexpr string DEFAULT_STRING("?");
 
-    // -----WORD_POS CLASS-----
+    using std::cerr;
+    using std::cin;
+    using std::cout;
+    using std::move;
+    using std::pair;
+    using std::string;
+    using std::min;
+    using std::max;
 
-    pos_t WordPos::getPos() const
-    {
-        return pos;
-    }
-
-    orientation_t WordPos::getOrient() const
-    {
-        return orient;
-    }
-
+    constinit const size_t SHIFT_VAL = 1;
 }
 
 // -----WORD CLASS-----
 
-// Construcotrs:
-Word::Word() = delete;
+void Word::checkOutOfBoundWord()
+{
+    size_t startPos;
+    size_t newEndIdx = 0;
+    size_t wordLen = word.size();
 
-Word::Word(size_t x, size_t y, orientation_t orient, std::string const &_word) : posAndOrient(x, y, orient), word(!_word.empty() ? _word : "?") {}
+    if (posAndOrient.getOrient() == H)
+    {
+        startPos = posAndOrient.getPos().first;
+    } else
+    {
+        startPos = posAndOrient.getPos().second;
+    }
 
-Word::Word(const Word &other) = default;
+    for (size_t i = 1; i < wordLen; i++)
+    {
+        if (startPos + i >= startPos)
+        {
+            newEndIdx = i;
+        } else
+        {
+            break;
+        }
+    }
 
-Word::Word(Word &&other) = default;
+    // when newEndIdx is not equal wordLen - 1, this means that we went over
+    // size_t max. So we need to cut some part of our word.
+    if (newEndIdx != wordLen - 1)
+    {
+        word.erase(newEndIdx + 1);
+    }
+}
+
+// Constructors:
+//Word::Word() = delete;
+
+Word::Word(size_t x, size_t y, orientation_t orient, std::string const& _word) :
+        posAndOrient(x, y, orient), word(!_word.empty() ? _word : DEFAULT_WORD)
+{
+    checkOutOfBoundWord();
+}
+
+// Copy constructor:
+Word::Word(const Word& other) = default;
+
+// Move constructor:
+Word::Word(Word&& other) noexcept = default;
 
 // Destructors:
 Word::~Word() = default;
 
 // Operators:
-Word &Word::operator=(const Word &rhs) = default;
+Word& Word::operator=(const Word& rhs) = default;
 
-Word &Word::operator=(Word &&rhs) = default;
+Word& Word::operator=(Word&& rhs) noexcept = default;
 
-bool Word::operator==(const Word &other) const
+bool Word::operator==(const Word& other) const
 {
     return posAndOrient == other.posAndOrient;
 }
 
-auto Word::operator<=>(const Word &other) const
+std::weak_ordering Word::operator<=>(const Word& other) const
 {
     return posAndOrient <=> other.posAndOrient;
 }
@@ -78,9 +98,12 @@ pos_t Word::get_end_position() const
     pos_t p = posAndOrient.getPos();
 
     if (posAndOrient.getOrient() == H)
-        return pos_t(p.first + word.size(), p.second);
-    else
-        return pos_t(p.first, p.second + word.size());
+    {
+        return pos_t(p.first + word.size() - SHIFT_VAL, p.second);
+    } else
+    {
+        return pos_t(p.first, p.second + word.size() - SHIFT_VAL);
+    }
 }
 
 orientation_t Word::get_orientation() const
@@ -90,9 +113,12 @@ orientation_t Word::get_orientation() const
 
 char Word::at(size_t idx) const
 {
+    //assert(idx < word.size());
     if (idx < word.size())
+    {
         return word[idx];
-    throw std::invalid_argument("Word - at(idx) - given idx is out of bounds\n");
+    }
+    return DEFAULT_CHAR;
 }
 
 size_t Word::length() const
@@ -102,123 +128,113 @@ size_t Word::length() const
 
 RectArea Word::rect_area() const
 {
-    return RectArea(pos_t(posAndOrient.getPos()), 
-        pos_t(this->get_end_position()));
+    return RectArea(pos_t(posAndOrient.getPos()),
+                    pos_t(this->get_end_position()));
 
 }
 
-// -----RECT_AREA CLASS-----
+// -----RECT AREA CLASS-----
 
 point_placement RectArea::isInside(pos_t p) const
 {
-    if(atLeastOneElemExist)
+    if (!this->empty())
     {
         if (p.second < topLeft.second)
+        {
             return OVER;
+        }
         if (p.second > bottomRight.second)
+        {
             return UNDER;
+        }
         if (p.first > bottomRight.first)
+        {
             return ON_THE_RIGHT;
+        }
         if (p.first < topLeft.first)
+        {
             return ON_THE_LEFT;
+        }
         return INSIDE;
     }
     return NO_AREA;
 }
 
-dim_t RectArea::calcArea()
+dim_t RectArea::calcArea() const
 {
-    atLeastOneElemExist = true;
-    
     if (bottomRight.first < topLeft.first ||
         bottomRight.second < topLeft.second)
-        {
-            atLeastOneElemExist = false;
-            return dim_t(0, 0);
-        }
-        
-    return dim_t(bottomRight.first - topLeft.first,
-                 bottomRight.second - topLeft.second);
+    {
+        return dim_t(0, 0);
+    }
+
+    return dim_t(bottomRight.first - topLeft.first + SHIFT_VAL,
+                 bottomRight.second - topLeft.second + SHIFT_VAL);
 }
 
 // Constructors:
-RectArea::RectArea() = delete;
-
 RectArea::RectArea(pos_t _topLeft, pos_t _bottomRight) : topLeft(_topLeft),
-                                                    bottomRight(_bottomRight), areaSize(calcArea()) {}
+                                                         bottomRight(
+                                                                 _bottomRight),
+                                                         areaSize(calcArea())
+{
+}
 
-RectArea::RectArea(const RectArea &other) = default;
+RectArea::RectArea(const RectArea& other) = default;
 //: topLeft(other.topLeft),
-                                            // bottomRight(other.bottomRight), areaSize(other.areaSize),
-                                            // atLeastOneElemExist(other.atLeastOneElemExist) {}
+// bottomRight(other.bottomRight), areaSize(other.areaSize),
+// atLeastOneElemExist(other.atLeastOneElemExist) {}
 
 // nie wiem czy trzeba, bo w sumie jak mamy inty to one sa kopiowane po prostu
-RectArea::RectArea(RectArea &&other) = default;
+RectArea::RectArea(RectArea&& other) noexcept = default;
 // : topLeft(move(other.topLeft)),
 // bottomRight(move(other.bottomRight)), areaSize(move(other.areaSize)),
 // atLeastOneElemExist(move(other.atLeastOneElemExist)) {}
 
 RectArea::~RectArea() = default;
 
-RectArea &RectArea::operator=(const RectArea &rhs)
+RectArea& RectArea::operator=(const RectArea& rhs)
 {
     if (this != &rhs)
     {
         topLeft = rhs.topLeft;
         bottomRight = rhs.bottomRight;
         areaSize = rhs.areaSize;
-        atLeastOneElemExist = rhs.atLeastOneElemExist;
     }
     return *this;
 }
 
-RectArea &RectArea::operator=(RectArea &&rhs)
+RectArea& RectArea::operator=(RectArea&& rhs) noexcept
 {
     if (this != &rhs)
     {
-        topLeft = move(rhs.topLeft);
-        bottomRight = move(rhs.bottomRight);
-        areaSize = move(rhs.areaSize);
-        atLeastOneElemExist = move(rhs.atLeastOneElemExist);
+        topLeft = std::move(rhs.topLeft);
+        bottomRight = std::move(rhs.bottomRight);
+        areaSize = std::move(rhs.areaSize);
     }
     return *this;
 }
 
-RectArea &RectArea::operator*=(const RectArea &rhs)
+RectArea& RectArea::operator*=(const RectArea& rhs)
 {
-    if (this->empty())
+    if (this->empty() || rhs.empty())
     {
-        if(atLeastOneElemExist && rhs.isInside(topLeft) == INSIDE)
-        {
-            *this = RectArea(topLeft, topLeft);
-        }
-        else
-            *this = EMPTY_AREA;
-    }
-    else if(rhs.empty())
-    {
-        if(rhs.atLeastOneElemExist && this->isInside(rhs.topLeft) == INSIDE)
-        {
-            *this = RectArea(rhs.topLeft, rhs.topLeft);
-        }
-        else
-            *this = EMPTY_AREA;
-    }
-    else
+        *this = DEFAULT_EMPTY_RECT_AREA;
+    } else
     {
         if (topLeft.first > rhs.bottomRight.first ||
             topLeft.second > rhs.bottomRight.second ||
             bottomRight.first < rhs.topLeft.first ||
             bottomRight.second < rhs.topLeft.second)
         {
-            *this = EMPTY_AREA;
-        }
-        else
+            *this = DEFAULT_EMPTY_RECT_AREA;
+        } else
         {
-            pos_t newTopLeft(max(topLeft.first, rhs.topLeft.first), 
-                max(topLeft.second, rhs.topLeft.second));
-            pos_t newBottomRight(min(topLeft.first, rhs.topLeft.first),
-                min(bottomRight.second, rhs.bottomRight.second));
+            pos_t newTopLeft(max(topLeft.first, rhs.topLeft.first),
+                             max(topLeft.second, rhs.topLeft.second));
+            pos_t newBottomRight(min(bottomRight.first, rhs.bottomRight.first),
+                                 min(bottomRight.second,
+                                     rhs.bottomRight.second));
 
             *this = RectArea(newTopLeft, newBottomRight);
         }
@@ -227,7 +243,7 @@ RectArea &RectArea::operator*=(const RectArea &rhs)
     return *this;
 }
 
-const RectArea RectArea::operator*(const RectArea &rhs) const
+RectArea RectArea::operator*(const RectArea& rhs) const
 {
     RectArea newRectArea = *this;
     newRectArea *= rhs;
@@ -254,7 +270,7 @@ dim_t RectArea::size() const
 
 bool RectArea::empty() const
 {
-    return areaSize == pos_t(0, 0);
+    return areaSize == dim_t(0, 0);
 }
 
 // Setters:
@@ -273,103 +289,270 @@ void RectArea::set_right_bottom(pos_t p)
 void RectArea::extend_to_left_or_right(pos_t p)
 {
     if (p.first < topLeft.first)
+    {
         topLeft.first = p.first;
-    else if (p.first > bottomRight.first)
+    } else if (p.first > bottomRight.first)
+    {
         bottomRight.first = p.first;
+    }
 }
 
 void RectArea::embrace(pos_t p)
 {
-    // RectArea is empty when has only one point, meaning topLeft = bottomRight
-    // or when is null set
-    if (!this->empty() || (this->empty() && atLeastOneElemExist))
+    if (!this->empty())
     {
         point_placement p_pos = isInside(p);
 
         switch (p_pos)
         {
-        case OVER:
-            topLeft.second = p.second;
+            case OVER:
+                topLeft.second = p.second;
 
-            extend_to_left_or_right(p);
+                extend_to_left_or_right(p);
 
-            break;
-        case UNDER:
-            bottomRight.second = p.second;
+                break;
+            case UNDER:
+                bottomRight.second = p.second;
 
-            extend_to_left_or_right(p);
+                extend_to_left_or_right(p);
 
-            break;
-        case ON_THE_RIGHT:
-        case ON_THE_LEFT:
-            extend_to_left_or_right(p);
+                break;
+            case ON_THE_RIGHT:
+            case ON_THE_LEFT:
+                extend_to_left_or_right(p);
 
-            break;
-        default:
-            break;
+                break;
+            default:
+                break;
         }
-    }
-    else if(!atLeastOneElemExist)
+    } else
     {
         topLeft = p;
-        bottomRight = p;   
+        bottomRight = p;
     }
 
-    this->calcArea();
+    areaSize = calcArea();
 }
 
 // -----CROSSWORD CLASS-----
 
-Crossword::Crossword(const Word &word)
+Crossword::Crossword(Crossword&& other) noexcept
+        : m_words(std::move(other.m_words)),
+          m_rectArea(std::move(other.m_rectArea)),
+          m_letters(std::move(other.m_letters))
+{}
+
+Crossword& Crossword::operator=(Crossword&& other) noexcept
 {
-    m_words.push_back(word);
-    // rectAreaInit
+    m_words = std::move(other.m_words);
+    m_rectArea = std::move(other.m_rectArea);
+    m_letters = std::move(other.m_letters);
+    return *this;
 }
 
-Crossword::Crossword(const Word &firstWord, const std::vector<Word> &words)
+Crossword::Crossword(const Word& word)
+        : m_rectArea(RectArea(word.get_start_position(),
+                              word.get_end_position()))
 {
+    insert_word(word);
 }
 
-Crossword::Crossword(Word &&word) noexcept
+Crossword::Crossword(const Word& firstWord, const std::vector<Word>& words)
+        : m_rectArea(RectArea(firstWord.get_start_position(),
+                              firstWord.get_end_position()))
 {
+    insert_word(firstWord);
+    for (const auto& word: words)
+    {
+        insert_word(word);
+    }
 }
 
-Crossword::Crossword(Word &&firstWord, std::vector<Word> &&words) noexcept
+bool Crossword::insert_word(const Word& word)
 {
-}
+    if (!collides(word))
+    {
+        m_words.push_back(word);
+        m_rectArea.embrace(word.get_start_position());
+        m_rectArea.embrace(word.get_end_position());
 
-void Crossword::insert_word(const Word &word)
-{
+        size_t x = word.getX();
+        size_t y = word.getY();
+        orientation_t o = word.get_orientation();
+
+        for (size_t i = 0; i < word.length(); i++)
+        {
+            if (o == H)
+            {
+                m_letters[pos_t(y, x + i)] = {
+                        word.at(i),
+                        o,
+                        m_letters.count(pos_t(y, x + i)) != 0};
+            } else // (o == V)
+            {
+                m_letters[pos_t(y + i, x)] = {
+                        word.at(i),
+                        o,
+                        m_letters.count(pos_t(y + i, x)) != 0};
+            }
+        }
+        return true;
+    }
+    return false;
 }
 
 dim_t Crossword::size() const
 {
+    return m_rectArea.size();
 }
 
 dim_t Crossword::word_count() const
 {
+    dim_t result = {0, 0};
+    for (const auto& word: m_words)
+    {
+        if (word.get_orientation() == H)
+        { result.first++; }
+        else
+        { result.second++; }
+    }
+    return result;
 }
 
-bool Crossword::colides(const Word &word)
+unsigned char toCrosswordLetter(unsigned char c)
 {
+    if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
+    {
+        return toupper(c);
+    } else
+    { return DEFAULT_CHAR; }
 }
 
-Crossword Crossword::operator+(const Crossword &other)
+bool Crossword::collides(const Word& word) const
 {
+    size_t x = word.getX();
+    size_t y = word.getY();
+    orientation_t o = word.get_orientation();
+
+    if (o == H)
+    {
+        for (size_t i = 0; i < word.length(); i++)
+        {
+            if (LETTER_EXISTS(y, x + i))
+            {
+                Letter letter = LETTER(y, x + i);
+                if (toCrosswordLetter(letter.character) ==
+                    toCrosswordLetter(word.at(i)) &&
+                    letter.orientation != o &&
+                    !letter.intersection)
+                {
+                    if (y > 0 && LETTER_EXISTS(y - 1, x + i) &&
+                        LETTER(y - 1, x + i).intersection)
+                    { return true; }
+                    if (y < SIZE_MAX && LETTER_EXISTS(y + 1, x + i) &&
+                        LETTER(y + 1, x + i).intersection)
+                    { return true; }
+                } else
+                { return true; }
+            } else // (!(LETTER_EXISTS(y, x + i)))
+            {
+                if (y > 0 && LETTER_EXISTS(y - 1, x + i))
+                { return true; }
+                if (y < SIZE_MAX && LETTER_EXISTS(y + 1, x + i))
+                { return true; }
+            }
+        }
+        if (x > 0 && LETTER_EXISTS(y, x - 1))
+        { return true; }
+        if (x < SIZE_MAX - word.length() + 1 &&
+            LETTER_EXISTS(y, x + word.length()))
+        { return true; }
+    } else // (o == V)
+    {
+        for (size_t i = 0; i < word.length(); i++)
+        {
+            if (LETTER_EXISTS(y + i, x))
+            {
+                Letter letter = LETTER(y + i, x);
+                if (toCrosswordLetter(letter.character) ==
+                    toCrosswordLetter(word.at(i)) &&
+                    letter.orientation != o &&
+                    !letter.intersection)
+                {
+                    if (x > 0 && LETTER_EXISTS(y + i, x - 1) &&
+                        LETTER(y + i, x - 1).intersection)
+                    { return true; }
+                    if (x < SIZE_MAX && LETTER_EXISTS(y + i, x + 1) &&
+                        LETTER(y + i, x + 1).intersection)
+                    { return true; }
+                } else
+                { return true; }
+            } else // (!(LETTER_EXISTS(y + i, x)))
+            {
+                if (x > 0 && LETTER_EXISTS(y + i, x - 1))
+                { return true; }
+                if (x < SIZE_MAX && LETTER_EXISTS(y + i, x + 1))
+                { return true; }
+            }
+        }
+        if (y > 0 && LETTER_EXISTS(y - 1, x))
+        { return true; }
+        if (y < SIZE_MAX - word.length() + 1 &&
+            LETTER_EXISTS(y + word.length(), x))
+        { return true; }
+    }
+    return false;
 }
 
-Crossword Crossword::operator+=(const Crossword &crossword)
+Crossword& Crossword::operator+(const Crossword& other)
 {
+    return *this += other;
 }
 
-std::ostream &operator<<(std::ostream &out, const Crossword &crossword)
+Crossword& Crossword::operator+=(const Crossword& other)
 {
+    for (const auto& word: other.m_words)
+    {
+        this->insert_word(word);
+    }
+    return *this;
 }
 
-Crossword &Crossword::operator=(const Crossword &other)
+std::ostream& operator<<(std::ostream& out, const Crossword& crossword)
 {
-}
+    pos_t start = crossword.m_rectArea.get_left_top();
+    pos_t end = crossword.m_rectArea.get_right_bottom();
+    size_t width = end.first - start.first + 1;
+    auto pointsItr = crossword.m_letters.cbegin();
 
-Crossword &Crossword::operator=(Crossword &&other) noexcept
-{
+    for(size_t i = 0; i < width + 1; i++)
+    {
+        out << CROSSWORD_BACKGROUND << ' ';
+    }
+    out << CROSSWORD_BACKGROUND << std::endl;
+
+    for (size_t j = start.second; j <= end.second; j++)
+    {
+        out << CROSSWORD_BACKGROUND << ' ';
+        for (size_t i = start.first; i <= end.first; i++)
+        {
+            if (pointsItr != crossword.m_letters.cend() &&
+                (*pointsItr).first == pos_t(j, i))
+            {
+                out << toCrosswordLetter((*pointsItr).second.character);
+                pointsItr++;
+            } else
+            { out << CROSSWORD_BACKGROUND; }
+            out << ' ';
+        }
+        out << CROSSWORD_BACKGROUND << std::endl;
+    }
+
+    for(size_t i = 0; i < width + 1; i++)
+    {
+        out << CROSSWORD_BACKGROUND << ' ';
+    }
+    out << CROSSWORD_BACKGROUND << std::endl;
+
+    return out;
 }
