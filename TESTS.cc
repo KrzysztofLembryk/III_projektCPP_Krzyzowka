@@ -56,6 +56,15 @@ void methods_Word_TEST()
     assert(w1.get_end_position() == pos_t(3, 1));
     assert(w2.get_end_position() == pos_t(1, 4));
 
+    Word wExtreme((size_t)(-1) - 2, 2, H, "EXTREME_WORD");
+    string res;
+
+    for(size_t i = 0; i < wExtreme.length(); i++)
+        res.push_back(wExtreme.at(i));
+
+    cout << "res: " << res << "\n";
+    assert(res == "EXT");
+
     printEndTest();
 }
 

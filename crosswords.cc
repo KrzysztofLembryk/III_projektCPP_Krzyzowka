@@ -22,11 +22,39 @@ const size_t SHIFT_VAL = 1;
 
 // -----WORD CLASS-----
 
+void Word::checkOutOfBoundWord()
+{
+    size_t startPos;
+    size_t newEndIdx = 0;
+    size_t wordLen = word.size();
+
+    if(posAndOrient.getOrient() == H)
+        startPos = posAndOrient.getPos().first;
+    else
+        startPos = posAndOrient.getPos().second;
+
+    for(size_t i = 1; i < wordLen; i++)
+    {
+        if(startPos + i >= startPos)
+            newEndIdx = i;
+        else
+            break;
+    }
+
+    // when newEndIdx is not equal wordLen - 1, this means that we went over
+    // size_t max. So we need to cut some part of our word.
+    if(newEndIdx != wordLen - 1)
+        word.erase(newEndIdx + 1);
+}
+
 // Constructors:
 //Word::Word() = delete;
 
 Word::Word(size_t x, size_t y, orientation_t orient, std::string const &_word) : 
-    posAndOrient(x, y, orient), word(!_word.empty() ? _word : DEFAULT_WORD) {}
+    posAndOrient(x, y, orient), word(!_word.empty() ? _word : DEFAULT_WORD) 
+    {
+        checkOutOfBoundWord();
+    }
 
 // Copy constructor:
 Word::Word(const Word &other) = default;

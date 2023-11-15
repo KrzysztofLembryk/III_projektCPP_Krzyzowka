@@ -111,6 +111,7 @@ private:
     WordPos posAndOrient;
     std::string word;
 
+    void checkOutOfBoundWord();
 public:
     // Constructors:
     Word() = delete;
