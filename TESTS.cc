@@ -18,6 +18,12 @@ void printEndTest(string method = "")
     cout << "--------------------\n";
 }
 
+bool ra_equals(const RectArea &ra, const RectArea &ra2)
+{
+    return (ra.get_left_top() == ra2.get_left_top()) && 
+            (ra.get_right_bottom() == ra2.get_right_bottom());
+}
+
 void operators_Word_TEST()
 {
     printStartTest("ALL OPERATORS", "WORD");
@@ -54,7 +60,11 @@ void methods_Word_TEST()
     Word w2(1, 1, V, "SMOK");
 
     assert(w1.get_end_position() == pos_t(3, 1));
+    assert(ra_equals(w1.rect_area(), RectArea(pos_t(1, 1), pos_t(3, 1))));
+    
     assert(w2.get_end_position() == pos_t(1, 4));
+    assert(ra_equals(w2.rect_area(), RectArea(pos_t(1, 1), pos_t(1, 4))));
+    
 
     Word wExtreme((size_t)(-1) - 2, 2, H, "EXTREME_WORD");
     string res;
@@ -66,12 +76,6 @@ void methods_Word_TEST()
     assert(res == "EXT");
 
     printEndTest();
-}
-
-bool ra_equals(const RectArea &ra, const RectArea &ra2)
-{
-    return (ra.get_left_top() == ra2.get_left_top()) && 
-            (ra.get_right_bottom() == ra2.get_right_bottom());
 }
 
 RectArea getRA(pos_t topLeft, pos_t btmRight)
