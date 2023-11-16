@@ -50,8 +50,7 @@ void Word::checkOutOfBoundWord()
 // Constructors:
 //Word::Word() = delete;
 
-Word::Word(size_t x, size_t y, orientation_t orient, std::string const &_word) : 
-    posAndOrient(x, y, orient), word(!_word.empty() ? _word : DEFAULT_WORD) 
+Word::Word(size_t x, size_t y, orientation_t orient, std::string const &_word) : posAndOrient(x, y, orient), word(!_word.empty() ? _word : DEFAULT_WORD) 
     {
         checkOutOfBoundWord();
     }
