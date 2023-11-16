@@ -75,6 +75,11 @@ void methods_Word_TEST()
     cout << "res: " << res << "\n";
     assert(res == "EXT");
 
+    Word w11(1, 1, H, "computer");
+    //Word w22(3, 1, V, "memory");
+
+    assert(ra_equals(w11.rect_area(), RectArea(pos_t(1, 1), pos_t(8, 1))));
+
     printEndTest();
 }
 
@@ -163,6 +168,13 @@ void RA_embrace_TEST()
 
     ra2.embrace(pos_t(0, 7));
     assert(ra2.size() == dim_t(6, 6));
+
+    RectArea raa1(pos_t(1, 1), pos_t(1, 1));
+
+    assert(ra_equals(raa1, getRA(pos_t(1, 1), pos_t(1, 1))));
+    assert(raa1.size() == pos_t(1, 1));
+
+    
 
     printEndTest();
     
