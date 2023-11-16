@@ -2,6 +2,7 @@
 #define CROSSWORDS_H
 
 #include <map>
+#include <utility>
 #include <vector>
 #include <iostream>
 #include <compare>
@@ -131,7 +132,7 @@ private:
         {
         }
 
-        WordPos(pos_t const& p, orientation_t const& o) : pos(p), orient(o)
+        WordPos(pos_t p, orientation_t o) : pos(std::move(p)), orient(o)
         {
         }
 
@@ -212,11 +213,6 @@ public:
     // account word orientation.
     RectArea rect_area() const;
 
-    size_t getX() const
-    { return posAndOrient.getPos().first; }
-
-    size_t getY() const
-    { return posAndOrient.getPos().second; }
 };
 
 class Crossword
@@ -226,16 +222,24 @@ private:
     {
         char character;
         orientation_t orientation;
-        bool intersection;
+        bool intersection; // If this is true orientation should be ignored.
+    };
+
+    // We need this to quickly print the crossword.
+    template<typename T>
+    struct reverseLexicographicalLess
+    {
+        bool operator()(const T& lhs, const T& rhs) const
+        {
+            if(lhs.second < rhs.second) return true;
+            else if(lhs.second > rhs.second) return false;
+            else return lhs.first < rhs.first;
+        }
     };
 
     std::vector<Word> m_words;
     RectArea m_rectArea;
-    /**
-     * In m_letters position is stored in reverse order, that is (y, x),
-     * to ensure proper sorting for operator<<.
-     * */
-    std::map<pos_t, Letter> m_letters;
+    std::map<pos_t, Letter, reverseLexicographicalLess<pos_t>> m_letters;
 
 public:
     // Constructors:

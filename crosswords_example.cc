@@ -141,7 +141,11 @@ namespace {
         assert(!cr4.insert_word(Word(14, 14, V, "2137")));
         assert(!cr4.insert_word(Word(19, 19, V, "2137")));
         assert(cr4.insert_word(Word(19, 16, V, "2137")));
-        assert(cr4.insert_word(Word(17, 17, H, "jp2gmd")));
+        assert(!cr4.insert_word(Word(20, 16, H, "2137")));
+        assert(!cr4.insert_word(Word(21, 16, V, "2137")));
+        assert(!cr4.insert_word(Word(21, 21, V, "2137")));
+        assert(cr4.insert_word(Word(19, 17, H, ";")));
+        assert(!cr4.insert_word(Word(19, 16, H, "2137")));
         cout << cr4 << '\n';
     }
 }   /* anonymous namespace */

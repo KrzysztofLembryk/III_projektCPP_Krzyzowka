@@ -1,9 +1,10 @@
 #include <cassert>
 #include <string>
+#include <utility>
 #include "crosswords.h"
 
-#define LETTER_EXISTS(y, x) m_letters.count(pos_t(y, x)) != 0
-#define LETTER(y, x) m_letters.at(pos_t(y, x))
+#define LETTER_EXISTS(x, y) (m_letters.count(pos_t(x, y)) != 0)
+#define LETTER(x, y) (m_letters.at(pos_t(x, y)))
 
 namespace
 {
@@ -172,10 +173,10 @@ dim_t RectArea::calcArea() const
 }
 
 // Constructor:
-RectArea::RectArea(pos_t _topLeft, pos_t _bottomRight) : topLeft(_topLeft),
-                                                         bottomRight(
-                                                                 _bottomRight),
-                                                         areaSize(calcArea())
+RectArea::RectArea(pos_t _topLeft, pos_t _bottomRight)
+    : topLeft(std::move(_topLeft)),
+      bottomRight(std::move(_bottomRight)),
+      areaSize(calcArea())
 {
 }
 
@@ -350,8 +351,8 @@ bool Crossword::insert_word(const Word& word)
         m_rectArea.embrace(word.get_start_position());
         m_rectArea.embrace(word.get_end_position());
 
-        size_t x = word.getX();
-        size_t y = word.getY();
+        size_t x = word.get_start_position().first;
+        size_t y = word.get_start_position().second;
         orientation_t o = word.get_orientation();
         bool intersection;
 
@@ -359,15 +360,15 @@ bool Crossword::insert_word(const Word& word)
         {
             if (o == H)
             {
-                intersection = m_letters.count(pos_t(y, x + i)) != 0;
-                m_letters[pos_t(y, x + i)] = {
+                intersection = m_letters.count(pos_t(x + i, y)) != 0;
+                m_letters[pos_t(x + i, y)] = {
                         word.at(i),
                         o,
                         intersection};
             } else // (o == V)
             {
-                intersection = m_letters.count(pos_t(y + i, x)) != 0;
-                m_letters[pos_t(y + i, x)] = {
+                intersection = m_letters.count(pos_t(x, y + i)) != 0;
+                m_letters[pos_t(x, y + i)] = {
                         word.at(i),
                         o,
                         intersection};
@@ -410,75 +411,75 @@ unsigned char toCrosswordLetter(unsigned char c)
 // made it significantly less readable.
 bool Crossword::collides(const Word& word) const
 {
-    size_t x = word.getX();
-    size_t y = word.getY();
+    size_t x = word.get_start_position().first;
+    size_t y = word.get_start_position().second;
     orientation_t o = word.get_orientation();
 
     if (o == H)
     {
         for (size_t i = 0; i < word.length(); i++)
         {
-            if (LETTER_EXISTS(y, x + i))
+            if (LETTER_EXISTS(x + i, y))
             {
-                Letter letter = LETTER(y, x + i);
+                Letter letter = LETTER(x + i, y);
                 if (toCrosswordLetter(letter.character) ==
                     toCrosswordLetter(word.at(i)) &&
                     letter.orientation != o &&
                     !letter.intersection)
                 {
-                    if (y > 0 && LETTER_EXISTS(y - 1, x + i) &&
-                        LETTER(y - 1, x + i).intersection)
+                    if (y > 0 && LETTER_EXISTS(x + i, y - 1) &&
+                        LETTER(x + i, y - 1).intersection)
                     { return true; }
-                    if (y < SIZE_MAX && LETTER_EXISTS(y + 1, x + i) &&
-                        LETTER(y + 1, x + i).intersection)
+                    if (y < SIZE_MAX && LETTER_EXISTS(x + i, y + 1) &&
+                        LETTER(x + i, y + 1).intersection)
                     { return true; }
                 } else
                 { return true; }
-            } else // (!(LETTER_EXISTS(y, x + i)))
+            } else // (!LETTER_EXISTS(x + i, y))
             {
-                if (y > 0 && LETTER_EXISTS(y - 1, x + i))
+                if (y > 0 && LETTER_EXISTS(x + i, y - 1))
                 { return true; }
-                if (y < SIZE_MAX && LETTER_EXISTS(y + 1, x + i))
+                if (y < SIZE_MAX && LETTER_EXISTS(x + i, y + 1))
                 { return true; }
             }
         }
-        if (x > 0 && LETTER_EXISTS(y, x - 1))
+        if (x > 0 && LETTER_EXISTS(x - 1, y))
         { return true; }
         if (x < SIZE_MAX - word.length() + 1 &&
-            LETTER_EXISTS(y, x + word.length()))
+            LETTER_EXISTS(x + word.length(), y))
         { return true; }
     } else // (o == V)
     {
         for (size_t i = 0; i < word.length(); i++)
         {
-            if (LETTER_EXISTS(y + i, x))
+            if (LETTER_EXISTS(x, y + i))
             {
-                Letter letter = LETTER(y + i, x);
+                Letter letter = LETTER(x, y + i);
                 if (toCrosswordLetter(letter.character) ==
                     toCrosswordLetter(word.at(i)) &&
                     letter.orientation != o &&
                     !letter.intersection)
                 {
-                    if (x > 0 && LETTER_EXISTS(y + i, x - 1) &&
-                        LETTER(y + i, x - 1).intersection)
+                    if (x > 0 && LETTER_EXISTS(x - 1, y + i) &&
+                        LETTER(x - 1, y + i).intersection)
                     { return true; }
-                    if (x < SIZE_MAX && LETTER_EXISTS(y + i, x + 1) &&
-                        LETTER(y + i, x + 1).intersection)
+                    if (x < SIZE_MAX && LETTER_EXISTS(x + 1, y + i) &&
+                        LETTER(x + 1, y + i).intersection)
                     { return true; }
                 } else
                 { return true; }
-            } else // (!(LETTER_EXISTS(y + i, x)))
+            } else // (!LETTER_EXISTS(x, y + i))
             {
-                if (x > 0 && LETTER_EXISTS(y + i, x - 1))
+                if (x > 0 && LETTER_EXISTS(x - 1, y + i))
                 { return true; }
-                if (x < SIZE_MAX && LETTER_EXISTS(y + i, x + 1))
+                if (x < SIZE_MAX && LETTER_EXISTS(x + 1, y + i))
                 { return true; }
             }
         }
-        if (y > 0 && LETTER_EXISTS(y - 1, x))
+        if (y > 0 && LETTER_EXISTS(x, y - 1))
         { return true; }
         if (y < SIZE_MAX - word.length() + 1 &&
-            LETTER_EXISTS(y + word.length(), x))
+            LETTER_EXISTS(x, y + word.length()))
         { return true; }
     }
     return false;
@@ -526,7 +527,7 @@ std::string lineOfBackgroundChars(size_t width)
 
 std::ostream& operator<<(std::ostream& out, const Crossword& crossword)
 {
-    if(crossword.size() == ZERO_DIM) {
+    if(crossword.size() == ZERO_DIM) { // If that's even possible.
         out << CROSSWORD_BACKGROUND << ' ' << CROSSWORD_BACKGROUND << '\n';
         out << CROSSWORD_BACKGROUND << ' ' << CROSSWORD_BACKGROUND << '\n';
         return out;
@@ -551,7 +552,7 @@ std::ostream& operator<<(std::ostream& out, const Crossword& crossword)
         for (size_t i = start.first; i <= end.first; i++)
         {
             if (pointsItr != crossword.m_letters.cend() &&
-                (*pointsItr).first == pos_t(j, i))
+                (*pointsItr).first == pos_t(i, j))
             {
                 out << toCrosswordLetter((*pointsItr).second.character);
                 pointsItr++;
