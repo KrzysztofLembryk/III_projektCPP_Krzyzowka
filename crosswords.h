@@ -56,8 +56,11 @@ private:
      *   given point
     */
     dim_t calcArea() const;
+
     point_placement isInside(pos_t) const;
+
     void extend_to_left_or_right(pos_t);
+
 public:
     // Constructors:
     RectArea() = delete;
@@ -152,7 +155,6 @@ private:
 
     WordPos posAndOrient;
     std::string word;
-    pos_t endPos;
 
     /**
      * Function checks if word fits in maximal crossword size:
