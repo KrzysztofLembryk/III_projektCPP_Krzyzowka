@@ -1,4 +1,3 @@
-#include <stdexcept>
 #include <cassert>
 #include <string>
 #include "crosswords.h"
@@ -354,21 +353,24 @@ bool Crossword::insert_word(const Word& word)
         size_t x = word.getX();
         size_t y = word.getY();
         orientation_t o = word.get_orientation();
+        bool intersection;
 
         for (size_t i = 0; i < word.length(); i++)
         {
             if (o == H)
             {
+                intersection = m_letters.count(pos_t(y, x + i)) != 0;
                 m_letters[pos_t(y, x + i)] = {
                         word.at(i),
                         o,
-                        m_letters.count(pos_t(y, x + i)) != 0};
+                        intersection};
             } else // (o == V)
             {
+                intersection = m_letters.count(pos_t(y + i, x)) != 0;
                 m_letters[pos_t(y + i, x)] = {
                         word.at(i),
                         o,
-                        m_letters.count(pos_t(y + i, x)) != 0};
+                        intersection};
             }
         }
         return true;
