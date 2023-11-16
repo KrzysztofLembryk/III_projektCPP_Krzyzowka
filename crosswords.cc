@@ -15,7 +15,8 @@ namespace
     using std::pair;
     using std::string;
 
-    constinit const size_t SHIFT_VAL = 1;
+    constexpr size_t SHIFT_VAL = 1;
+    constexpr dim_t ZERO_DIM(0, 0);
 }
 
 // -----WORD CLASS-----
@@ -53,24 +54,9 @@ pos_t Word::checkOutOfBoundWord()
 }
 
 // Constructors:
-// Word::Word() = delete;
 
 Word::Word(size_t x, size_t y, orientation_t orient, std::string const &_word): posAndOrient(x, y, orient), word(!_word.empty() ? _word : DEFAULT_WORD),
-endPos(checkOutOfBoundWord()) {}
-
-// Copy constructor:
-Word::Word(const Word &other) = default;
-
-// Move constructor:
-Word::Word(Word &&other) noexcept = default;
-
-// Destructors:
-Word::~Word() = default;
-
-// Operators:
-Word &Word::operator=(const Word &rhs) = default;
-
-Word &Word::operator=(Word &&rhs) noexcept = default;
+    endPos(checkOutOfBoundWord()) {}
 
 bool Word::operator==(const Word &other) const
 {
@@ -151,7 +137,7 @@ dim_t RectArea::calcArea() const
     if (bottomRight.first < topLeft.first ||
         bottomRight.second < topLeft.second)
     {
-        return dim_t(0, 0);
+        return ZERO_DIM;
     }
 
     return dim_t(bottomRight.first - topLeft.first + SHIFT_VAL,
@@ -160,46 +146,7 @@ dim_t RectArea::calcArea() const
 
 // Constructors:
 RectArea::RectArea(pos_t _topLeft, pos_t _bottomRight) : topLeft(_topLeft),
-                                                         bottomRight(
-                                                             _bottomRight),
-                                                         areaSize(calcArea())
-{
-}
-
-RectArea::RectArea(const RectArea &other) = default;
-//: topLeft(other.topLeft),
-// bottomRight(other.bottomRight), areaSize(other.areaSize),
-// atLeastOneElemExist(other.atLeastOneElemExist) {}
-
-// nie wiem czy trzeba, bo w sumie jak mamy inty to one sa kopiowane po prostu
-RectArea::RectArea(RectArea &&other) noexcept = default;
-// : topLeft(move(other.topLeft)),
-// bottomRight(move(other.bottomRight)), areaSize(move(other.areaSize)),
-// atLeastOneElemExist(move(other.atLeastOneElemExist)) {}
-
-RectArea::~RectArea() = default;
-
-RectArea &RectArea::operator=(const RectArea &rhs)
-{
-    if (this != &rhs)
-    {
-        topLeft = rhs.topLeft;
-        bottomRight = rhs.bottomRight;
-        areaSize = rhs.areaSize;
-    }
-    return *this;
-}
-
-RectArea &RectArea::operator=(RectArea &&rhs) noexcept
-{
-    if (this != &rhs)
-    {
-        topLeft = std::move(rhs.topLeft);
-        bottomRight = std::move(rhs.bottomRight);
-        areaSize = std::move(rhs.areaSize);
-    }
-    return *this;
-}
+            bottomRight(_bottomRight),areaSize(calcArea()) {}
 
 RectArea &RectArea::operator*=(const RectArea &rhs)
 {
@@ -257,7 +204,7 @@ dim_t RectArea::size() const
 
 bool RectArea::empty() const
 {
-    return areaSize == dim_t(0, 0);
+    return areaSize == ZERO_DIM;
 }
 
 // Setters:
