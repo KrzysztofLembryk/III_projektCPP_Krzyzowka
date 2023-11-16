@@ -122,14 +122,27 @@ namespace {
         CROSSWORD_BACKGROUND = '.';
         cout << cr1 << '\n';
 
-        Crossword cr4(Word(2, 5, V, "C++20"), {Word(0, 8, H, "C17")});
-        cout << cr4 << '\n';
-
-        //--------Behold the ultimate edge case---------------------------------
+        //--------Behold the ultimate edge case--------------------------------
         Crossword cr5(Word(SIZE_MAX - 4, SIZE_MAX, H, "kurWarszawaNieHoduje"));
         assert(cr5.insert_word(Word(SIZE_MAX, SIZE_MAX - 5, V, "jeBanana")));
-        cout << cr5;
+        cout << cr5 << '\n';
         //---------------------------------------------------------------------
+
+        Crossword cr4(Word(3, 0, V, "papierz"), {Word(0, 1, H, "polak")});
+        assert(!cr4.insert_word(Word(4, 1, V, "kremuwka")));
+        assert(!cr4.insert_word(Word(3, 6, V, "z")));
+        assert(cr4.insert_word(Word(3, 6, H, "z")));
+        assert(!cr4.insert_word(Word(3, 5, H, "rumcajs")));
+        assert(cr4.insert_word(Word(20, 20, H, "2137")));
+        assert(!cr4.insert_word(Word(16, 20, H, "2137")));
+        assert(cr4.insert_word(Word(15, 20, H, "2137")));
+        assert(!cr4.insert_word(Word(15, 16, V, "2137")));
+        assert(cr4.insert_word(Word(15, 15, V, "2137")));
+        assert(!cr4.insert_word(Word(14, 14, V, "2137")));
+        assert(!cr4.insert_word(Word(19, 19, V, "2137")));
+        assert(cr4.insert_word(Word(19, 16, V, "2137")));
+        assert(cr4.insert_word(Word(17, 17, H, "jp2gmd")));
+        cout << cr4 << '\n';
     }
 }   /* anonymous namespace */
 
