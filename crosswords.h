@@ -36,11 +36,8 @@ private:
     dim_t areaSize;
 
     dim_t calcArea() const;
-
     point_placement isInside(pos_t) const;
-
     void extend_to_left_or_right(pos_t);
-
 public:
     RectArea() = default;
 
@@ -127,8 +124,9 @@ private:
 
     WordPos posAndOrient;
     std::string word;
+    pos_t endPos;
 
-    void checkOutOfBoundWord();
+    pos_t checkOutOfBoundWord();
 
 public:
     // Constructors:
