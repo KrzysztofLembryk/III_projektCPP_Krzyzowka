@@ -164,7 +164,7 @@ private:
      * the word is trimmed to fit in crossword. 
      * Function returns end position of word.
     */
-    pos_t cutOutOfBounds_getEndPos();
+    pos_t checkAndGetEndPos();
 
 public:
     // Constructors:

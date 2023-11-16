@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <cassert>
 #include "crosswords.h"
 
 #define LETTER_EXISTS(y, x) m_letters.count(pos_t(y, x)) != 0
@@ -6,7 +7,6 @@
 
 namespace
 {
-
     using std::cerr;
     using std::cin;
     using std::cout;
@@ -22,7 +22,12 @@ namespace
 
 // -----WORD CLASS-----
 
-pos_t Word::cutOutOfBounds_getEndPos()
+/**
+ * Function checks whether any of end position coordinates of given word isn't
+ * greater than max(size_t). If it is string word is accordingly trimmed. 
+ * Then we return correct end position of word.
+*/
+pos_t Word::checkAndGetEndPos()
 {
     size_t startPos;
     size_t wordLen = word.size();
@@ -49,11 +54,15 @@ pos_t Word::cutOutOfBounds_getEndPos()
         return pos_t(p.first, p.second + word.size() - SHIFT_VAL);
 }
 
-// Constructors:
-
+// Constructor:
 Word::Word(size_t x, size_t y, orientation_t orient, std::string const &_word): posAndOrient(x, y, orient), word(!_word.empty() ? _word : DEFAULT_WORD),
-    endPos(cutOutOfBounds_getEndPos()) {}
+    endPos(checkAndGetEndPos()) {}
 
+// Operators:
+/**
+ * == and <=> operators for Word class are done via comparing their
+ * WordPos variables, since we have lexycographic order of (x, y, orient).
+*/
 bool Word::operator==(const Word &other) const
 {
     return posAndOrient == other.posAndOrient;
@@ -137,6 +146,9 @@ dim_t RectArea::calcArea() const
         return ZERO_DIM;
     }
 
+    assert((!(topLeft.first == 0 && bottomRight.first == (size_t)(-1)) &&
+     !(topLeft.second == 0 && bottomRight.second == (size_t)(-1))));
+    
     return dim_t(bottomRight.first - topLeft.first + SHIFT_VAL,
                  bottomRight.second - topLeft.second + SHIFT_VAL);
 }
