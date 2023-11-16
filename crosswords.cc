@@ -22,18 +22,15 @@ namespace
 
 // -----WORD CLASS-----
 
-void Word::cutOutOfBoundsWord()
+pos_t Word::cutOutOfBounds_getEndPos()
 {
     size_t startPos;
     size_t wordLen = word.size();
 
     if (posAndOrient.getOrient() == H)
-    {
         startPos = posAndOrient.getPos().first;
-    } else
-    {
+    else
         startPos = posAndOrient.getPos().second;
-    }
 
     for (size_t i = 0; i < wordLen - 1; i++)
     {
@@ -43,12 +40,19 @@ void Word::cutOutOfBoundsWord()
             break;
         }
     }
+
+    pos_t p = posAndOrient.getPos();
+
+    if (posAndOrient.getOrient() == H)
+        return pos_t(p.first + word.size() - SHIFT_VAL, p.second);
+    else
+        return pos_t(p.first, p.second + word.size() - SHIFT_VAL);
 }
 
 // Constructors:
 
 Word::Word(size_t x, size_t y, orientation_t orient, std::string const &_word): posAndOrient(x, y, orient), word(!_word.empty() ? _word : DEFAULT_WORD),
-    endPos(checkOutOfBoundWord()) {}
+    endPos(cutOutOfBounds_getEndPos()) {}
 
 bool Word::operator==(const Word &other) const
 {
@@ -68,15 +72,7 @@ pos_t Word::get_start_position() const
 
 pos_t Word::get_end_position() const
 {
-    pos_t p = posAndOrient.getPos();
-
-    if (posAndOrient.getOrient() == H)
-    {
-        return pos_t(p.first + word.size() - SHIFT_VAL, p.second);
-    } else
-    {
-        return pos_t(p.first, p.second + word.size() - SHIFT_VAL);
-    }
+    return endPos;
 }
 
 orientation_t Word::get_orientation() const

@@ -155,6 +155,7 @@ private:
 
     WordPos posAndOrient;
     std::string word;
+    pos_t endPos;
 
     /**
      * Function checks if word fits in maximal crossword size:
@@ -163,7 +164,7 @@ private:
      * the word is trimmed to fit in crossword. 
      * Function returns end position of word.
     */
-    pos_t checkOutOfBoundWord();
+    pos_t cutOutOfBounds_getEndPos();
 
 public:
     // Constructors:
