@@ -9,6 +9,10 @@
 using pos_t = std::pair<size_t, size_t>;
 using dim_t = std::pair<size_t, size_t>;
 
+/**
+ * Enum class that stores allowed orientations: H - horizontal, V - vertical.
+ * H = false, because we want H < V inequality to be true.
+*/
 enum orientation_t : bool
 {
     H = false,
@@ -16,7 +20,11 @@ enum orientation_t : bool
 };
 
 namespace
-{
+{   
+    /**
+     * This enum helps to determine where given point is regarding rectangle 
+     * in RectArea::embrace() method.
+    */
     enum point_placement
     {
         ON_THE_RIGHT,
@@ -26,15 +34,27 @@ namespace
         INSIDE,
         NO_AREA
     };
-
 }
 
+/**
+ * RectArea class stores coordinates of rectangle; its topLeft and bottomRight 
+ * vertices. Apart from obvious methods (like getters, setters), this class
+ * allows to enlarge rectangle to accommodate new point by embrace() method 
+ * and to find intersection of rectangles using * or *= operators.
+*/
 class RectArea
 {
 private:
     pos_t topLeft, bottomRight;
     dim_t areaSize;
 
+    /**
+     * Helping private functions:
+     * - calcArea() returns pair (width, height) pf rectangle
+     * - isInside() checks where given point is regarding our rectangle 
+     * - extend_to_left_or_right() extends width of rectangle to accommodate 
+     *   given point
+    */
     dim_t calcArea() const;
 
     point_placement isInside(pos_t) const;
@@ -42,19 +62,24 @@ private:
     void extend_to_left_or_right(pos_t);
 
 public:
-    RectArea() = default;
+    // Constructors:
+    RectArea() = delete;
 
     RectArea(pos_t _topLeft, pos_t _bottomRight);
 
-    RectArea(const RectArea&);
+    // Copy Constructor:
+    RectArea(const RectArea&) = default;
 
-    RectArea(RectArea&&) noexcept;
+    // Move Constructor:
+    RectArea(RectArea&&) noexcept = default;
 
-    ~RectArea();
+    // Destructor:
+    ~RectArea() = default;
 
-    RectArea& operator=(const RectArea&);
+    // Operators:
+    RectArea& operator=(const RectArea&) = default;
 
-    RectArea& operator=(RectArea&&) noexcept;
+    RectArea& operator=(RectArea&&) noexcept = default;
 
     RectArea& operator*=(const RectArea& rhs);
 
@@ -74,13 +99,24 @@ public:
 
     void set_right_bottom(pos_t);
 
-    // embrace - powieksza obszar zeby objal tez nowy punkt
     void embrace(pos_t);
 };
 
+/**
+ * Class Word stores given string and its starting and ending position in
+ * crossword and also its orientation in crossword.
+*/ 
 class Word
 {
 private:
+    /**
+     * Helping class WordPos stores starting position of word and its
+     * orientation. Thanks to this class comparing Words via <=> can be done
+     * easily using default operators. Since pos_t = pair<size_t, size_t> and 
+     * orientation_t = enum bool know how to compare itselves to others,
+     * WordPos by default knows that too. Thus comparing two Word objects is
+     * equivalent to comparing their WordPos variables.
+    */
     class WordPos
     {
     private:
@@ -91,23 +127,17 @@ private:
         // Constructors:
         WordPos() = delete;
 
-        inline WordPos(size_t x, size_t y, orientation_t o) : pos(x, y),
-                                                              orient(o)
-        {}
+        WordPos(size_t x, size_t y, orientation_t o) : pos(x, y), orient(o) {}
 
-        inline WordPos(pos_t const& p, orientation_t const& o) : pos(p),
-                                                                 orient(o)
-        {}
+        WordPos(pos_t const& p, orientation_t const& o) : pos(p), orient(o) {}
 
         // Copy constructor:
         WordPos(const WordPos& w) = default;
-        //: m_pos(w.m_pos), m_orient(w.m_orient) {}
 
         // Move Constructor:
         WordPos(WordPos&& w) = default;
-        //: m_pos(move(w.m_pos)), m_orient(move(w.m_orient)) {}
 
-        // Destructors:
+        // Destructor:
         ~WordPos() = default;
 
         // Operators:
@@ -118,17 +148,23 @@ private:
         auto operator<=>(WordPos const&) const = default;
 
         // Getters:
-        pos_t getPos() const
-        { return pos; }
+        pos_t getPos() const {return pos;}
 
-        orientation_t getOrient() const
-        { return orient; }
+        orientation_t getOrient() const {return orient;}
     };
 
     WordPos posAndOrient;
     std::string word;
+    pos_t endPos;
 
-    void cutOutOfBoundsWord();
+    /**
+     * Function checks if word fits in maximal crossword size:
+     * = (size_t)(-1) x (size_t)(-1). If after adding word length to
+     * starting position of word, we go over maximum size of crossword, 
+     * the word is trimmed to fit in crossword. 
+     * Function returns end position of word.
+    */
+    pos_t checkAndGetEndPos();
 
 public:
     // Constructors:
@@ -137,22 +173,18 @@ public:
     Word(size_t x, size_t y, orientation_t orient, std::string const& _word);
 
     // Copy constructor:
-    Word(const Word& other);
-    //: m_posAndOrient(other.m_posAndOrient),
-    //    m_word(other.m_word) {}
+    Word(const Word& other) = default;
 
     // Move constructor:
-    Word(Word&& other) noexcept;
-    //: m_posAndOrient(move(other.m_posAndOrient)),
-    //    m_word(move(other.m_word)) {}
+    Word(Word&& other) noexcept = default;
 
-    // Destructors:
-    ~Word();
+    // Destructor:
+    ~Word() = default;
 
     // Operators:
-    Word& operator=(const Word& rhs);
+    Word& operator=(const Word& rhs) = default;
 
-    Word& operator=(Word&& rhs) noexcept;
+    Word& operator=(Word&& rhs) noexcept = default;
 
     bool operator==(const Word& other) const;
 
@@ -165,18 +197,21 @@ public:
 
     orientation_t get_orientation() const;
 
+    // Method returns character which is at given position in word.
     char at(size_t idx) const;
 
     size_t length() const;
-
+    
+    // Method returns minimal rectArea that contains word, method takes into
+    // account word orientation.
     RectArea rect_area() const;
 
-    inline size_t getX() const
+    size_t getX() const
     {
         return posAndOrient.getPos().first;
     }
 
-    inline size_t getY() const
+    size_t getY() const
     {
         return posAndOrient.getPos().second;
     }

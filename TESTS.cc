@@ -216,6 +216,15 @@ void RA_operator_TEST()
     
     assert(ra_equals(lineArea * getRA(pos_t(1, 3), pos_t(3,3)), 
         getRA(pos_t(2, 3), pos_t(2, 3))));
+
+    RectArea ra1(pos_t(1, 1), pos_t(2, 2));
+    RectArea ra2(pos_t(3, 3), pos_t(4, 4));
+
+    ra1 = ra2;
+    assert(ra_equals(ra1, ra2));
+    
+    ra1 = RectArea(pos_t(1, 4), pos_t(2, 2));
+    assert(ra_equals(ra1, RectArea(pos_t(1, 4), pos_t(2, 2))));
     
     printEndTest();
 }

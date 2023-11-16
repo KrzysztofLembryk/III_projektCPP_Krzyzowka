@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <cassert>
 #include "crosswords.h"
 
 #define LETTER_EXISTS(y, x) m_letters.count(pos_t(y, x)) != 0
@@ -6,7 +7,6 @@
 
 namespace
 {
-
     using std::cerr;
     using std::cin;
     using std::cout;
@@ -16,23 +16,26 @@ namespace
     using std::min;
     using std::max;
 
-    constinit const size_t SHIFT_VAL = 1;
+    constexpr size_t SHIFT_VAL = 1;
+    constexpr dim_t ZERO_DIM(0, 0);
 }
 
 // -----WORD CLASS-----
 
-void Word::cutOutOfBoundsWord()
+/**
+ * Function checks whether any of end position coordinates of given word isn't
+ * greater than max(size_t). If it is string word is accordingly trimmed. 
+ * Then we return correct end position of word.
+*/
+pos_t Word::checkAndGetEndPos()
 {
     size_t startPos;
     size_t wordLen = word.size();
 
     if (posAndOrient.getOrient() == H)
-    {
         startPos = posAndOrient.getPos().first;
-    } else
-    {
+    else
         startPos = posAndOrient.getPos().second;
-    }
 
     for (size_t i = 0; i < wordLen - 1; i++)
     {
@@ -42,32 +45,25 @@ void Word::cutOutOfBoundsWord()
             break;
         }
     }
+
+    pos_t p = posAndOrient.getPos();
+
+    if (posAndOrient.getOrient() == H)
+        return pos_t(p.first + word.size() - SHIFT_VAL, p.second);
+    else
+        return pos_t(p.first, p.second + word.size() - SHIFT_VAL);
 }
 
-// Constructors:
-//Word::Word() = delete;
-
-Word::Word(size_t x, size_t y, orientation_t orient, std::string const& _word) :
-        posAndOrient(x, y, orient), word(!_word.empty() ? _word : DEFAULT_WORD)
-{
-    cutOutOfBoundsWord();
-}
-
-// Copy constructor:
-Word::Word(const Word& other) = default;
-
-// Move constructor:
-Word::Word(Word&& other) noexcept = default;
-
-// Destructors:
-Word::~Word() = default;
+// Constructor:
+Word::Word(size_t x, size_t y, orientation_t orient, std::string const &_word): posAndOrient(x, y, orient), word(!_word.empty() ? _word : DEFAULT_WORD),
+    endPos(checkAndGetEndPos()) {}
 
 // Operators:
-Word& Word::operator=(const Word& rhs) = default;
-
-Word& Word::operator=(Word&& rhs) noexcept = default;
-
-bool Word::operator==(const Word& other) const
+/**
+ * == and <=> operators for Word class are done via comparing their
+ * WordPos variables, since we have lexycographic order of (x, y, orient).
+*/
+bool Word::operator==(const Word &other) const
 {
     return posAndOrient == other.posAndOrient;
 }
@@ -85,15 +81,7 @@ pos_t Word::get_start_position() const
 
 pos_t Word::get_end_position() const
 {
-    pos_t p = posAndOrient.getPos();
-
-    if (posAndOrient.getOrient() == H)
-    {
-        return pos_t(p.first + word.size() - SHIFT_VAL, p.second);
-    } else
-    {
-        return pos_t(p.first, p.second + word.size() - SHIFT_VAL);
-    }
+    return endPos;
 }
 
 orientation_t Word::get_orientation() const
@@ -103,11 +91,9 @@ orientation_t Word::get_orientation() const
 
 char Word::at(size_t idx) const
 {
-    //assert(idx < word.size());
     if (idx < word.size())
-    {
         return word[idx];
-    }
+    
     return DEFAULT_CHAR;
 }
 
@@ -125,6 +111,10 @@ RectArea Word::rect_area() const
 
 // -----RECT AREA CLASS-----
 
+/**
+ * Function checks where given point p is regarding our rectangle. It returns
+ * the information whether point is over, under etc our rectangle.
+*/
 point_placement RectArea::isInside(pos_t p) const
 {
     if (!this->empty())
@@ -150,67 +140,41 @@ point_placement RectArea::isInside(pos_t p) const
     return NO_AREA;
 }
 
+/**
+ * Function calculates area of our rectangle. It returns pair (width, height)
+ * of our rectangle. It also checks if our rectangle is empty or bigger than
+ * size_t max.
+*/
 dim_t RectArea::calcArea() const
 {
     if (bottomRight.first < topLeft.first ||
         bottomRight.second < topLeft.second)
     {
-        return dim_t(0, 0);
+        return ZERO_DIM;
     }
 
+    assert((!(topLeft.first == 0 && bottomRight.first == (size_t)(-1)) &&
+     !(topLeft.second == 0 && bottomRight.second == (size_t)(-1))));
+    
     return dim_t(bottomRight.first - topLeft.first + SHIFT_VAL,
                  bottomRight.second - topLeft.second + SHIFT_VAL);
 }
 
-// Constructors:
+// Constructor:
 RectArea::RectArea(pos_t _topLeft, pos_t _bottomRight) : topLeft(_topLeft),
-                                                         bottomRight(
-                                                                 _bottomRight),
-                                                         areaSize(calcArea())
-{
-}
+            bottomRight(_bottomRight), areaSize(calcArea()) {}
 
-RectArea::RectArea(const RectArea& other) = default;
-//: topLeft(other.topLeft),
-// bottomRight(other.bottomRight), areaSize(other.areaSize),
-// atLeastOneElemExist(other.atLeastOneElemExist) {}
-
-// nie wiem czy trzeba, bo w sumie jak mamy inty to one sa kopiowane po prostu
-RectArea::RectArea(RectArea&& other) noexcept = default;
-// : topLeft(move(other.topLeft)),
-// bottomRight(move(other.bottomRight)), areaSize(move(other.areaSize)),
-// atLeastOneElemExist(move(other.atLeastOneElemExist)) {}
-
-RectArea::~RectArea() = default;
-
-RectArea& RectArea::operator=(const RectArea& rhs)
-{
-    if (this != &rhs)
-    {
-        topLeft = rhs.topLeft;
-        bottomRight = rhs.bottomRight;
-        areaSize = rhs.areaSize;
-    }
-    return *this;
-}
-
-RectArea& RectArea::operator=(RectArea&& rhs) noexcept
-{
-    if (this != &rhs)
-    {
-        topLeft = std::move(rhs.topLeft);
-        bottomRight = std::move(rhs.bottomRight);
-        areaSize = std::move(rhs.areaSize);
-    }
-    return *this;
-}
-
+/**
+ * Operator *= finds coordinates of rectangle that is an intersection of
+ * this and rhs rectangles.
+*/
 RectArea& RectArea::operator*=(const RectArea& rhs)
 {
     if (this->empty() || rhs.empty())
     {
         *this = DEFAULT_EMPTY_RECT_AREA;
-    } else
+    } 
+    else
     {
         if (topLeft.first > rhs.bottomRight.first ||
             topLeft.second > rhs.bottomRight.second ||
@@ -218,13 +182,13 @@ RectArea& RectArea::operator*=(const RectArea& rhs)
             bottomRight.second < rhs.topLeft.second)
         {
             *this = DEFAULT_EMPTY_RECT_AREA;
-        } else
+        } 
+        else
         {
             pos_t newTopLeft(max(topLeft.first, rhs.topLeft.first),
-                             max(topLeft.second, rhs.topLeft.second));
+                            max(topLeft.second, rhs.topLeft.second));
             pos_t newBottomRight(min(bottomRight.first, rhs.bottomRight.first),
-                                 min(bottomRight.second,
-                                     rhs.bottomRight.second));
+                            min(bottomRight.second, rhs.bottomRight.second));
 
             *this = RectArea(newTopLeft, newBottomRight);
         }
@@ -240,7 +204,6 @@ RectArea RectArea::operator*(const RectArea& rhs) const
 
     return newRectArea;
 }
-
 
 // Getters:
 pos_t RectArea::get_left_top() const
@@ -260,10 +223,13 @@ dim_t RectArea::size() const
 
 bool RectArea::empty() const
 {
-    return areaSize == dim_t(0, 0);
+    return areaSize == ZERO_DIM;
 }
 
 // Setters:
+/**
+ * After we set new topLeft or bottomRight we need to calculate area again.
+*/
 void RectArea::set_left_top(pos_t p)
 {
     topLeft = p;
@@ -287,6 +253,11 @@ void RectArea::extend_to_left_or_right(pos_t p)
     }
 }
 
+/**
+ * Embrace function makes minimal enlargement of rectangle area so that it can 
+ * accomodate given point and all old points. It calculates new area size 
+ * after accommodation.
+*/
 void RectArea::embrace(pos_t p)
 {
     if (!this->empty())
