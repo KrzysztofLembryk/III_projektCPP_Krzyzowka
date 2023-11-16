@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include <cassert>
+#include <string>
 #include "crosswords.h"
 
 #define LETTER_EXISTS(y, x) m_letters.count(pos_t(y, x)) != 0
@@ -33,9 +34,12 @@ pos_t Word::checkAndGetEndPos()
     size_t wordLen = word.size();
 
     if (posAndOrient.getOrient() == H)
+    {
         startPos = posAndOrient.getPos().first;
-    else
+    } else
+    {
         startPos = posAndOrient.getPos().second;
+    }
 
     for (size_t i = 0; i < wordLen - 1; i++)
     {
@@ -49,21 +53,27 @@ pos_t Word::checkAndGetEndPos()
     pos_t p = posAndOrient.getPos();
 
     if (posAndOrient.getOrient() == H)
-        return pos_t(p.first + word.size() - SHIFT_VAL, p.second);
-    else
-        return pos_t(p.first, p.second + word.size() - SHIFT_VAL);
+    {
+        return {p.first + word.size() - SHIFT_VAL, p.second};
+    } else
+    {
+        return {p.first, p.second + word.size() - SHIFT_VAL};
+    }
 }
 
 // Constructor:
-Word::Word(size_t x, size_t y, orientation_t orient, std::string const &_word): posAndOrient(x, y, orient), word(!_word.empty() ? _word : DEFAULT_WORD),
-    endPos(checkAndGetEndPos()) {}
+Word::Word(size_t x, size_t y, orientation_t orient, std::string const& _word)
+        : posAndOrient(x, y, orient),
+          word(!_word.empty() ? _word : DEFAULT_WORD),
+          endPos(checkAndGetEndPos())
+{}
 
 // Operators:
 /**
  * == and <=> operators for Word class are done via comparing their
- * WordPos variables, since we have lexycographic order of (x, y, orient).
+ * WordPos variables, since we have lexicographic order of (x, y, orient).
 */
-bool Word::operator==(const Word &other) const
+bool Word::operator==(const Word& other) const
 {
     return posAndOrient == other.posAndOrient;
 }
@@ -92,8 +102,10 @@ orientation_t Word::get_orientation() const
 char Word::at(size_t idx) const
 {
     if (idx < word.size())
+    {
         return word[idx];
-    
+    }
+
     return DEFAULT_CHAR;
 }
 
@@ -104,8 +116,8 @@ size_t Word::length() const
 
 RectArea Word::rect_area() const
 {
-    return RectArea(pos_t(posAndOrient.getPos()),
-                    pos_t(this->get_end_position()));
+    return {pos_t(posAndOrient.getPos()),
+            pos_t(this->get_end_position())};
 
 }
 
@@ -153,16 +165,20 @@ dim_t RectArea::calcArea() const
         return ZERO_DIM;
     }
 
-    assert((!(topLeft.first == 0 && bottomRight.first == (size_t)(-1)) &&
-     !(topLeft.second == 0 && bottomRight.second == (size_t)(-1))));
-    
-    return dim_t(bottomRight.first - topLeft.first + SHIFT_VAL,
-                 bottomRight.second - topLeft.second + SHIFT_VAL);
+    assert((!(topLeft.first == 0 && bottomRight.first == (size_t) (-1)) &&
+            !(topLeft.second == 0 && bottomRight.second == (size_t) (-1))));
+
+    return {bottomRight.first - topLeft.first + SHIFT_VAL,
+            bottomRight.second - topLeft.second + SHIFT_VAL};
 }
 
 // Constructor:
 RectArea::RectArea(pos_t _topLeft, pos_t _bottomRight) : topLeft(_topLeft),
-            bottomRight(_bottomRight), areaSize(calcArea()) {}
+                                                         bottomRight(
+                                                                 _bottomRight),
+                                                         areaSize(calcArea())
+{
+}
 
 /**
  * Operator *= finds coordinates of rectangle that is an intersection of
@@ -173,8 +189,7 @@ RectArea& RectArea::operator*=(const RectArea& rhs)
     if (this->empty() || rhs.empty())
     {
         *this = DEFAULT_EMPTY_RECT_AREA;
-    } 
-    else
+    } else
     {
         if (topLeft.first > rhs.bottomRight.first ||
             topLeft.second > rhs.bottomRight.second ||
@@ -182,13 +197,13 @@ RectArea& RectArea::operator*=(const RectArea& rhs)
             bottomRight.second < rhs.topLeft.second)
         {
             *this = DEFAULT_EMPTY_RECT_AREA;
-        } 
-        else
+        } else
         {
             pos_t newTopLeft(max(topLeft.first, rhs.topLeft.first),
-                            max(topLeft.second, rhs.topLeft.second));
+                             max(topLeft.second, rhs.topLeft.second));
             pos_t newBottomRight(min(bottomRight.first, rhs.bottomRight.first),
-                            min(bottomRight.second, rhs.bottomRight.second));
+                                 min(bottomRight.second,
+                                     rhs.bottomRight.second));
 
             *this = RectArea(newTopLeft, newBottomRight);
         }
@@ -254,8 +269,8 @@ void RectArea::extend_to_left_or_right(pos_t p)
 }
 
 /**
- * Embrace function makes minimal enlargement of rectangle area so that it can 
- * accomodate given point and all old points. It calculates new area size 
+ * Embrace function makes minimal enlargement of rectangle area so that it can
+ * accommodate given point and all old points. It calculates new area size
  * after accommodation.
 */
 void RectArea::embrace(pos_t p)
@@ -297,18 +312,17 @@ void RectArea::embrace(pos_t p)
 
 // -----CROSSWORD CLASS-----
 
+// Constructors:
 Crossword::Crossword(Crossword&& other) noexcept
         : m_words(std::move(other.m_words)),
           m_rectArea(std::move(other.m_rectArea)),
           m_letters(std::move(other.m_letters))
-{}
-
-Crossword& Crossword::operator=(Crossword&& other) noexcept
 {
-    m_words = std::move(other.m_words);
-    m_rectArea = std::move(other.m_rectArea);
-    m_letters = std::move(other.m_letters);
-    return *this;
+    if (m_words.empty())
+    {
+        m_letters.clear();
+        m_rectArea = DEFAULT_EMPTY_RECT_AREA;
+    }
 }
 
 Crossword::Crossword(const Word& word)
@@ -380,6 +394,7 @@ dim_t Crossword::word_count() const
     return result;
 }
 
+// Auxiliary Function
 unsigned char toCrosswordLetter(unsigned char c)
 {
     if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
@@ -389,6 +404,8 @@ unsigned char toCrosswordLetter(unsigned char c)
     { return DEFAULT_CHAR; }
 }
 
+// I know it doesn't look great, but every attempt to shorten the code
+// made it significantly less readable.
 bool Crossword::collides(const Word& word) const
 {
     size_t x = word.getX();
@@ -465,6 +482,20 @@ bool Crossword::collides(const Word& word) const
     return false;
 }
 
+// Operators:
+Crossword& Crossword::operator=(Crossword&& other) noexcept
+{
+    m_words = std::move(other.m_words);
+    m_rectArea = std::move(other.m_rectArea);
+    m_letters = std::move(other.m_letters);
+    if (m_words.empty())
+    {
+        m_letters.clear();
+        m_rectArea = DEFAULT_EMPTY_RECT_AREA;
+    }
+    return *this;
+}
+
 Crossword& Crossword::operator+(const Crossword& other)
 {
     return *this += other;
@@ -479,18 +510,38 @@ Crossword& Crossword::operator+=(const Crossword& other)
     return *this;
 }
 
+// Auxiliary Function
+std::string lineOfBackgroundChars(size_t width)
+{
+    std::string str;
+    for (size_t i = 0; i < width; i++)
+    {
+        str += CROSSWORD_BACKGROUND;
+        str += ' ';
+    }
+    return str;
+}
+
 std::ostream& operator<<(std::ostream& out, const Crossword& crossword)
 {
+    if(crossword.size() == ZERO_DIM) {
+        out << CROSSWORD_BACKGROUND << ' ' << CROSSWORD_BACKGROUND << '\n';
+        out << CROSSWORD_BACKGROUND << ' ' << CROSSWORD_BACKGROUND << '\n';
+        return out;
+    }
+
     pos_t start = crossword.m_rectArea.get_left_top();
     pos_t end = crossword.m_rectArea.get_right_bottom();
-    size_t width = end.first - start.first + 1;
+    size_t widthMinusOne = end.first - start.first;
+    // we would like to add 1 to widthMinusOne,
+    // but width could already be SIZE_MAX, so we can't.
     auto pointsItr = crossword.m_letters.cbegin();
 
-    for (size_t i = 0; i < width + 1; i++)
-    {
-        out << CROSSWORD_BACKGROUND << ' ';
-    }
-    out << CROSSWORD_BACKGROUND << std::endl;
+    out << lineOfBackgroundChars(widthMinusOne);
+    // Last three characters are added in this way,
+    // because widthMinusOne could be equal to SIZE_MAX.
+    out << lineOfBackgroundChars(2);
+    out << CROSSWORD_BACKGROUND << '\n';
 
     for (size_t j = start.second; j <= end.second; j++)
     {
@@ -505,20 +556,20 @@ std::ostream& operator<<(std::ostream& out, const Crossword& crossword)
             } else
             { out << CROSSWORD_BACKGROUND; }
             out << ' ';
-            if(i == SIZE_MAX) break; // Not the prettiest of solutions,
-                                     // but if we need to print the whole range
-                                     // from 0 to SIZE_MAX we will have
-                                     // an infinite loop without it.
+            if (i == SIZE_MAX)
+            { break; } // Not the prettiest of solutions,
+                       // but if we need to print the whole range
+                       // from 0 to SIZE_MAX we will have
+                       // an infinite loop without it.
         }
-        out << CROSSWORD_BACKGROUND << std::endl;
-        if(j == SIZE_MAX) break; // Likewise.
+        out << CROSSWORD_BACKGROUND << '\n';
+        if (j == SIZE_MAX)
+        { break; } // Likewise.
     }
 
-    for (size_t i = 0; i < width + 1; i++)
-    {
-        out << CROSSWORD_BACKGROUND << ' ';
-    }
-    out << CROSSWORD_BACKGROUND << std::endl;
+    out << lineOfBackgroundChars(widthMinusOne);
+    out << lineOfBackgroundChars(2);
+    out << CROSSWORD_BACKGROUND << '\n';
 
     return out;
 }

@@ -20,7 +20,7 @@ enum orientation_t : bool
 };
 
 namespace
-{   
+{
     /**
      * This enum helps to determine where given point is regarding rectangle 
      * in RectArea::embrace() method.
@@ -105,7 +105,7 @@ public:
 /**
  * Class Word stores given string and its starting and ending position in
  * crossword and also its orientation in crossword.
-*/ 
+*/
 class Word
 {
 private:
@@ -127,9 +127,13 @@ private:
         // Constructors:
         WordPos() = delete;
 
-        WordPos(size_t x, size_t y, orientation_t o) : pos(x, y), orient(o) {}
+        WordPos(size_t x, size_t y, orientation_t o) : pos(x, y), orient(o)
+        {
+        }
 
-        WordPos(pos_t const& p, orientation_t const& o) : pos(p), orient(o) {}
+        WordPos(pos_t const& p, orientation_t const& o) : pos(p), orient(o)
+        {
+        }
 
         // Copy constructor:
         WordPos(const WordPos& w) = default;
@@ -148,9 +152,11 @@ private:
         auto operator<=>(WordPos const&) const = default;
 
         // Getters:
-        pos_t getPos() const {return pos;}
+        pos_t getPos() const
+        { return pos; }
 
-        orientation_t getOrient() const {return orient;}
+        orientation_t getOrient() const
+        { return orient; }
     };
 
     WordPos posAndOrient;
@@ -201,20 +207,16 @@ public:
     char at(size_t idx) const;
 
     size_t length() const;
-    
+
     // Method returns minimal rectArea that contains word, method takes into
     // account word orientation.
     RectArea rect_area() const;
 
     size_t getX() const
-    {
-        return posAndOrient.getPos().first;
-    }
+    { return posAndOrient.getPos().first; }
 
     size_t getY() const
-    {
-        return posAndOrient.getPos().second;
-    }
+    { return posAndOrient.getPos().second; }
 };
 
 class Crossword
@@ -229,6 +231,10 @@ private:
 
     std::vector<Word> m_words;
     RectArea m_rectArea;
+    /**
+     * In m_letters position is stored in reverse order, that is (y, x),
+     * to ensure proper sorting for operator<<.
+     * */
     std::map<pos_t, Letter> m_letters;
 
 public:
@@ -251,8 +257,6 @@ public:
     // Getters:
     dim_t size() const;
 
-    dim_t word_count() const;
-
     // Operators:
     Crossword& operator=(const Crossword& other) = default;
 
@@ -265,8 +269,13 @@ public:
     friend std::ostream&
     operator<<(std::ostream& out, const Crossword& crossword);
 
+    // Returns number of vertical and horizontal words.
+    dim_t word_count() const;
+
 private:
+    // Checks if a word collides with other words in the crossword.
     bool collides(const Word& word) const;
+
 };
 
 inline const RectArea DEFAULT_EMPTY_RECT_AREA(pos_t(1, 1), pos_t(0, 0));
