@@ -128,7 +128,7 @@ private:
     WordPos posAndOrient;
     std::string word;
 
-    void checkOutOfBoundWord();
+    void cutOutOfBoundsWord();
 
 public:
     // Constructors:

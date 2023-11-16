@@ -21,10 +21,9 @@ namespace
 
 // -----WORD CLASS-----
 
-void Word::checkOutOfBoundWord()
+void Word::cutOutOfBoundsWord()
 {
     size_t startPos;
-    size_t newEndIdx = 0;
     size_t wordLen = word.size();
 
     if (posAndOrient.getOrient() == H)
@@ -35,22 +34,13 @@ void Word::checkOutOfBoundWord()
         startPos = posAndOrient.getPos().second;
     }
 
-    for (size_t i = 1; i < wordLen; i++)
+    for (size_t i = 0; i < wordLen - 1; i++)
     {
-        if (startPos + i >= startPos)
+        if (startPos + i == SIZE_MAX)
         {
-            newEndIdx = i;
-        } else
-        {
+            word.erase(i + 1);
             break;
         }
-    }
-
-    // when newEndIdx is not equal wordLen - 1, this means that we went over
-    // size_t max. So we need to cut some part of our word.
-    if (newEndIdx != wordLen - 1)
-    {
-        word.erase(newEndIdx + 1);
     }
 }
 
@@ -60,7 +50,7 @@ void Word::checkOutOfBoundWord()
 Word::Word(size_t x, size_t y, orientation_t orient, std::string const& _word) :
         posAndOrient(x, y, orient), word(!_word.empty() ? _word : DEFAULT_WORD)
 {
-    checkOutOfBoundWord();
+    cutOutOfBoundsWord();
 }
 
 // Copy constructor:
@@ -525,7 +515,7 @@ std::ostream& operator<<(std::ostream& out, const Crossword& crossword)
     size_t width = end.first - start.first + 1;
     auto pointsItr = crossword.m_letters.cbegin();
 
-    for(size_t i = 0; i < width + 1; i++)
+    for (size_t i = 0; i < width + 1; i++)
     {
         out << CROSSWORD_BACKGROUND << ' ';
     }
@@ -544,11 +534,16 @@ std::ostream& operator<<(std::ostream& out, const Crossword& crossword)
             } else
             { out << CROSSWORD_BACKGROUND; }
             out << ' ';
+            if(i == SIZE_MAX) break; // Not the prettiest of solutions,
+                                     // but if we need to print the whole range
+                                     // from 0 to SIZE_MAX we will have
+                                     // an infinite loop without it.
         }
         out << CROSSWORD_BACKGROUND << std::endl;
+        if(j == SIZE_MAX) break; // Likewise.
     }
 
-    for(size_t i = 0; i < width + 1; i++)
+    for (size_t i = 0; i < width + 1; i++)
     {
         out << CROSSWORD_BACKGROUND << ' ';
     }
