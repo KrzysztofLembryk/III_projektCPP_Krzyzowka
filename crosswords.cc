@@ -91,11 +91,9 @@ orientation_t Word::get_orientation() const
 
 char Word::at(size_t idx) const
 {
-    //assert(idx < word.size());
     if (idx < word.size())
-    {
         return word[idx];
-    }
+    
     return DEFAULT_CHAR;
 }
 
@@ -113,6 +111,10 @@ RectArea Word::rect_area() const
 
 // -----RECT AREA CLASS-----
 
+/**
+ * Function checks where given point p is regarding our rectangle. It returns
+ * the information whether point is over, under etc our rectangle.
+*/
 point_placement RectArea::isInside(pos_t p) const
 {
     if (!this->empty())
@@ -138,6 +140,11 @@ point_placement RectArea::isInside(pos_t p) const
     return NO_AREA;
 }
 
+/**
+ * Function calculates area of our rectangle. It returns pair (width, height)
+ * of our rectangle. It also checks if our rectangle is empty or bigger than
+ * size_t max.
+*/
 dim_t RectArea::calcArea() const
 {
     if (bottomRight.first < topLeft.first ||
@@ -153,16 +160,21 @@ dim_t RectArea::calcArea() const
                  bottomRight.second - topLeft.second + SHIFT_VAL);
 }
 
-// Constructors:
+// Constructor:
 RectArea::RectArea(pos_t _topLeft, pos_t _bottomRight) : topLeft(_topLeft),
-            bottomRight(_bottomRight),areaSize(calcArea()) {}
+            bottomRight(_bottomRight), areaSize(calcArea()) {}
 
+/**
+ * Operator *= finds coordinates of rectangle that is an intersection of
+ * this and rhs rectangles.
+*/
 RectArea& RectArea::operator*=(const RectArea& rhs)
 {
     if (this->empty() || rhs.empty())
     {
         *this = DEFAULT_EMPTY_RECT_AREA;
-    } else
+    } 
+    else
     {
         if (topLeft.first > rhs.bottomRight.first ||
             topLeft.second > rhs.bottomRight.second ||
@@ -170,13 +182,13 @@ RectArea& RectArea::operator*=(const RectArea& rhs)
             bottomRight.second < rhs.topLeft.second)
         {
             *this = DEFAULT_EMPTY_RECT_AREA;
-        } else
+        } 
+        else
         {
             pos_t newTopLeft(max(topLeft.first, rhs.topLeft.first),
-                             max(topLeft.second, rhs.topLeft.second));
+                            max(topLeft.second, rhs.topLeft.second));
             pos_t newBottomRight(min(bottomRight.first, rhs.bottomRight.first),
-                                 min(bottomRight.second,
-                                     rhs.bottomRight.second));
+                            min(bottomRight.second, rhs.bottomRight.second));
 
             *this = RectArea(newTopLeft, newBottomRight);
         }
@@ -192,7 +204,6 @@ RectArea RectArea::operator*(const RectArea& rhs) const
 
     return newRectArea;
 }
-
 
 // Getters:
 pos_t RectArea::get_left_top() const
@@ -216,6 +227,9 @@ bool RectArea::empty() const
 }
 
 // Setters:
+/**
+ * After we set new topLeft or bottomRight we need to calculate area again.
+*/
 void RectArea::set_left_top(pos_t p)
 {
     topLeft = p;
@@ -239,6 +253,11 @@ void RectArea::extend_to_left_or_right(pos_t p)
     }
 }
 
+/**
+ * Embrace function makes minimal enlargement of rectangle area so that it can 
+ * accomodate given point and all old points. It calculates new area size 
+ * after accommodation.
+*/
 void RectArea::embrace(pos_t p)
 {
     if (!this->empty())
