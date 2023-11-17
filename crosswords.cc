@@ -443,11 +443,20 @@ bool Crossword::collides(const Word& word) const
                 { return true; }
             }
         }
-        if (x > 0 && LETTER_EXISTS(x - 1, y))
-        { return true; }
-        if (x < SIZE_MAX - word.length() + 1 &&
-            LETTER_EXISTS(x + word.length(), y))
-        { return true; }
+        if (x > 0)
+        {
+            if (LETTER_EXISTS(x - 1, y) ||
+                (y > 0 && LETTER_EXISTS(x - 1, y - 1)) ||
+                (y < SIZE_MAX && LETTER_EXISTS(x - 1, y + 1)))
+            { return true; }
+        }
+        if (x < SIZE_MAX - word.length() + 1)
+        {
+            if (LETTER_EXISTS(x + word.length(), y) ||
+                (y > 0 && LETTER_EXISTS(x + word.length(), y - 1)) ||
+                (y < SIZE_MAX && LETTER_EXISTS(x + word.length(), y + 1)))
+            { return true; }
+        }
     } else // (o == V)
     {
         for (size_t i = 0; i < word.length(); i++)
@@ -476,11 +485,20 @@ bool Crossword::collides(const Word& word) const
                 { return true; }
             }
         }
-        if (y > 0 && LETTER_EXISTS(x, y - 1))
-        { return true; }
-        if (y < SIZE_MAX - word.length() + 1 &&
-            LETTER_EXISTS(x, y + word.length()))
-        { return true; }
+        if (y > 0)
+        {
+            if (LETTER_EXISTS(x, y - 1) ||
+                (x > 0 && LETTER_EXISTS(x - 1, y - 1)) ||
+                (x < SIZE_MAX && LETTER_EXISTS(x + 1, y - 1)))
+            { return true; }
+        }
+        if (y < SIZE_MAX - word.length() + 1)
+        {
+            if (LETTER_EXISTS(x, y + word.length()) ||
+                (x > 0 && LETTER_EXISTS(x - 1, y + word.length())) ||
+                (x < SIZE_MAX && LETTER_EXISTS(x - 1, y + word.length())))
+            { return true; }
+        }
     }
     return false;
 }

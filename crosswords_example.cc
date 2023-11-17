@@ -1,157 +1,202 @@
-/*
- * File:        crosswords_example.cc
- * Created on:  31/10/2023
- * Author:      Przemysław Rutka
- */
+// Franciszek Witt
+// Wojciech Malecha
 
-#include <cassert>
 #include <iostream>
-#include <utility>
+#include <cassert>
+#include <type_traits>
+#include <functional>
+#include <limits>
+
 #include "crosswords.h"
 
-#define WORD_BASIC_ASSERTS(w, sp, ep, o, ci, c, l) \
-do { \
-    assert(w.get_start_position() == sp); \
-    assert(w.get_end_position() == ep); \
-    assert(w.get_orientation() == o); \
-    assert(w.at(ci) == c); \
-    assert(w.length() == l); \
-} while (0)
+using namespace std;
 
-#define RECT_AREA_BASE_ASSERTS(ra, lt, rb, s, e) \
-do { \
-    assert(ra.get_left_top() == lt); \
-    assert(ra.get_right_bottom() == rb); \
-    assert(ra.size() == s); \
-    assert(ra.empty() == e); \
-} while(0)
-
-#define CROSSWORD_DIM_ASSERTS(cr, sz, cnt) \
-do { \
-    assert(cr.size() == sz); \
-    assert(cr.word_count() == cnt); \
-} while(0)
-
-namespace {
+void proste1() {
     using orientation_t::H;
     using orientation_t::V;
-    using std::cout;
 
-    void word_tests() {
-        Word w1(1, 1, H, "COMPUTER");
-        Word w2(3, 1, V, "MEMORY");
-        Word w3(1, 5, V, "");
+    size_t smax = numeric_limits<size_t>::max();
 
-        WORD_BASIC_ASSERTS(w1, pos_t(1, 1), pos_t(8, 1), H, 0, 'C', 8);
-        WORD_BASIC_ASSERTS(w2, pos_t(3, 1), pos_t(3, 6), V, 6, DEFAULT_CHAR, 6);
-        WORD_BASIC_ASSERTS(w3, pos_t(1, 5), pos_t(1, 5), V, 0,
-                           DEFAULT_CHAR, DEFAULT_WORD.length());
+    Word w1 = Word(0, 0, H, "");
+    assert(w1.length() == 1);
+    assert(w1.at(0) == DEFAULT_CHAR);
+    assert(w1.at(1) == DEFAULT_CHAR);
+    assert(w1.get_end_position() == pos_t(0, 0));
 
-        assert(w1 < w3);
-        assert(w1 <= w3);
-        assert(w2 > w1);
-        assert(w2 >= w1);
-        assert(w1 != w2);
-        assert(w2 > Word(3, 1, H, "MEMORY"));
-        assert(w2 == Word(3, 1, V, "MNEMONIC"));
+    Crossword c1 = Crossword(w1, {});
+    Word w2 = Word(0, 0, V, "");
+    assert(c1.insert_word(w2));
+
+    Word w3 = Word(1, 0, H, "");
+    Word w4 = Word(1, 0, V, "");
+    Word w5 = Word(0, 1, H, "");
+    Word w6 = Word(0, 1, V, "");
+    Word w7 = Word(1, 1, H, "");
+    Word w8 = Word(1, 1, V, "");
+
+    assert(!c1.insert_word(w3));
+    assert(!c1.insert_word(w4));
+    assert(!c1.insert_word(w5));
+    assert(!c1.insert_word(w6));
+    assert(!c1.insert_word(w7));
+    assert(!c1.insert_word(w8));
+
+    Word w9 = Word(smax, smax, H, "A");
+    Crossword c2 = Crossword(w9, {});
+
+    Word w10 = Word(smax, smax - 1, H, "A");
+    Word w11 = Word(smax - 1, smax, H, "A");
+    Word w12 = Word(smax - 1, smax - 1, H, "A");
+
+    assert(!c2.insert_word(w10));
+    assert(!c2.insert_word(w11));
+    assert(!c2.insert_word(w12));
+
+    Crossword c3 = Crossword(w12, {});
+    assert(!c3.insert_word(w9));
+    assert(!c3.insert_word(w10));
+    assert(!c3.insert_word(w11));
+
+    Crossword c4 = std::move(c3);
+    Crossword c5 = std::move(c3);
+    assert(c5.size() == dim_t(0, 0));
+
+    Word w13 = Word(10, 10, H, "A");
+    Crossword c6 = Crossword(w13, {});
+
+    Word w14 = Word(11, 10, H, "A");
+    Word w15 = Word(10, 11, H, "A");
+    Word w16 = Word(11, 11, H, "A");
+
+    Word w17 = Word(9, 10, H, "A");
+    Word w18 = Word(10, 9, H, "A");
+    Word w19 = Word(9, 9, H, "A");
+
+    assert(!c6.insert_word(w14));
+    assert(!c6.insert_word(w15));
+    assert(!c6.insert_word(w16));
+    assert(!c6.insert_word(w17));
+    assert(!c6.insert_word(w18));
+    assert(!c6.insert_word(w19));
+
+    Word w20 = Word(5, 11, H, "AAAAAAAAAAA");
+    Word w21 = Word(5, 11, V, "AAAAAAAAAAA");
+    assert(!c6.insert_word(w20));
+    assert(c6.insert_word(w21));
+
+    Crossword c7 = Crossword(w20, {});
+    Word w22 = Word(9, 11, H, "AAAAAAAAAAA");
+    assert(!c7.insert_word(w22));
+
+}
+
+template<class T>
+void podstawowe_statyczne_zapewnienia() {
+    static_assert(is_copy_constructible_v<T>, "Wymagany konstruktor kopiowania");
+    static_assert(is_move_constructible_v<T>, "Wymagany konstruktor przenoszacy");
+    static_assert(is_copy_assignable_v<T>, "Wymagany kopiujacy konstruktor przypisania");
+    static_assert(is_move_assignable_v<T>, "Wymagany przenoszacy konstruktor przypisania");
+    static_assert(!is_default_constructible_v<T>, "Niedozwolony domysny konstruktor");
+    static_assert(!is_constructible_v<T>, "Zakaz pustej konstrukcji"); //Chyba to samo co wyżej, ale better safe than sorry.
+}
+
+void statyczne_zapewnienia_word() {
+    podstawowe_statyczne_zapewnienia<Word>();
+    static_assert(is_constructible_v<Word, size_t, size_t, orientation_t, string>, "Wymagana mozliwosc konstrukcji");
+}
+
+void statyczne_zapewnienia_rectarea() {
+    podstawowe_statyczne_zapewnienia<RectArea>();
+    static_assert(is_constructible_v<RectArea, pos_t, pos_t>, "Wymagana mozliwosc konstrukcji");
+}
+
+void statyczne_zapewnienia_crossword() {
+    podstawowe_statyczne_zapewnienia<Crossword>();
+    static_assert(is_constructible_v<Crossword, Word, std::initializer_list<Word>>, "Wymagana mozliwosc konstrukcji");
+}
+
+void basic_word() {
+    size_t smax = numeric_limits<size_t>::max();
+
+    {
+        Word word(smax, smax, orientation_t::H, "Abcde");
+        assert(word.get_start_position() == pos_t(smax, smax));
+        assert(word.get_end_position() == pos_t(smax, smax));
+        assert(word.rect_area().get_left_top() == pos_t(smax, smax));
+        assert(word.rect_area().get_right_bottom() == pos_t(smax, smax));
+        assert(word.at(0) == 'A');
+        for(size_t i = 1; i < 12345678; i++)
+            assert(word.at(i) == DEFAULT_CHAR);
+        assert(word.at(smax) == DEFAULT_CHAR);
     }
 
-    void rect_area_tests() {
-        RectArea ra1(pos_t(1, 2), pos_t(10, 7));
-        RECT_AREA_BASE_ASSERTS(ra1, pos_t(1, 2), pos_t(10, 7), dim_t(10, 6), false);
-        ra1.set_left_top(pos_t(2, 3));
-        RECT_AREA_BASE_ASSERTS(ra1, pos_t(2, 3), pos_t(10, 7), dim_t(9, 5), false);
-        ra1.set_right_bottom(pos_t(9, 7));
-        RECT_AREA_BASE_ASSERTS(ra1, pos_t(2, 3), pos_t(9, 7), dim_t(8, 5), false);
-
-        RectArea ra2(pos_t(10, 7), pos_t(1, 2));
-        RECT_AREA_BASE_ASSERTS(ra2, pos_t(10, 7), pos_t(1, 2), dim_t(0, 0), true);
-
-        RectArea ra3(pos_t(1, 2), pos_t(10, 7));
-        ra3 *= RectArea(pos_t(4, 5), pos_t(15, 10));
-        RECT_AREA_BASE_ASSERTS(ra3, pos_t(4, 5), pos_t(10, 7), dim_t(7, 3), false);
-
-        RectArea ra4 = ra3 * RectArea(pos_t(15, 10), pos_t(15, 11));
-        assert(ra4.size() == dim_t(0, 0));
-        assert(ra4.empty());
-
-        RectArea ra5(pos_t(2, 3), pos_t(10, 7));
-        ra5.embrace(pos_t(4, 5));
-        RECT_AREA_BASE_ASSERTS(ra5, pos_t(2, 3), pos_t(10, 7), dim_t(9, 5), false);
-        ra5.embrace(pos_t(1, 2));
-        RECT_AREA_BASE_ASSERTS(ra5, pos_t(1, 2), pos_t(10, 7), dim_t(10, 6), false);
-
-        assert(DEFAULT_EMPTY_RECT_AREA.size() == dim_t(0, 0));
-        assert(DEFAULT_EMPTY_RECT_AREA.empty());
-
-        Word w1(1, 1, V, "COMPUTER");
-        RECT_AREA_BASE_ASSERTS(w1.rect_area(), pos_t(1, 1), pos_t(1, 8),
-                               dim_t(1, 8), false);
+    {
+        Word word(smax, smax, orientation_t::V, "XDdDdDDDdDdDDd");
+        assert(word.get_start_position() == pos_t(smax, smax));
+        assert(word.get_end_position() == pos_t(smax, smax));
+        assert(word.rect_area().get_left_top() == pos_t(smax, smax));
+        assert(word.rect_area().get_right_bottom() == pos_t(smax, smax));
+        assert(word.at(0) == 'X');
+        for(size_t i = 1; i < 12345678; i++)
+            assert(word.at(i) == DEFAULT_CHAR);
+        assert(word.at(smax) == DEFAULT_CHAR);
     }
 
-    void crossword_tests() {
-        Word w1(1, 1, H, "computer");
-        Word w2(3, 1, V, "memory");
-        Crossword cr1(w1, {w2});
-        CROSSWORD_DIM_ASSERTS(cr1, dim_t(8, 6), dim_t(1, 1));
-        assert(cr1.insert_word(Word(11, 3, V, "LINUX")));
-        CROSSWORD_DIM_ASSERTS(cr1, dim_t(11, 7), dim_t(1, 2));
-        assert(!cr1.insert_word(Word(2, 4, H, "programme")));
-        CROSSWORD_DIM_ASSERTS(cr1, dim_t(11, 7), dim_t(1, 2));
-        assert(!cr1.insert_word(Word(2, 5, H, "programme")));
-        CROSSWORD_DIM_ASSERTS(cr1, dim_t(11, 7), dim_t(1, 2));
-        assert(cr1.insert_word(Word(2, 5, H, "programming")));
-        CROSSWORD_DIM_ASSERTS(cr1, dim_t(12, 7), dim_t(2, 2));
-        cout << cr1 << '\n';
-
-        Crossword cr2(Word(10, 7, H, "EXECUTION"), {});
-        CROSSWORD_DIM_ASSERTS(cr2, dim_t(9, 1), dim_t(1, 0));
-        assert(cr2.insert_word(Word(10, 3, V, "PARSER")));
-        CROSSWORD_DIM_ASSERTS(cr2, dim_t(9, 6), dim_t(1, 1));
-        assert(cr2.insert_word(Word(13, 7, V, "Code")));
-        CROSSWORD_DIM_ASSERTS(cr2, dim_t(9, 8), dim_t(1, 2));
-        CROSSWORD_BACKGROUND = '~';
-        cout << cr2 << '\n';
-
-        Crossword cr3 = cr1 + cr2;
-        CROSSWORD_DIM_ASSERTS(cr3, dim_t(18, 10), dim_t(3, 3));
-        CROSSWORD_BACKGROUND = '=';
-        cout << cr3 << '\n';
-        cr1 += cr2;
-        CROSSWORD_DIM_ASSERTS(cr1, dim_t(18, 10), dim_t(3, 3));
-        CROSSWORD_BACKGROUND = '.';
-        cout << cr1 << '\n';
-
-        //--------Behold the ultimate edge case--------------------------------
-        Crossword cr5(Word(SIZE_MAX - 4, SIZE_MAX, H, "kurWarszawaNieHoduje"));
-        assert(cr5.insert_word(Word(SIZE_MAX, SIZE_MAX - 5, V, "jeBanana")));
-        cout << cr5 << '\n';
-        //---------------------------------------------------------------------
-
-        Crossword cr4(Word(3, 0, V, "papierz"), {Word(0, 1, H, "polak")});
-        assert(!cr4.insert_word(Word(4, 1, V, "kremuwka")));
-        assert(!cr4.insert_word(Word(3, 6, V, "z")));
-        assert(cr4.insert_word(Word(3, 6, H, "z")));
-        assert(!cr4.insert_word(Word(3, 5, H, "rumcajs")));
-        assert(cr4.insert_word(Word(20, 20, H, "2137")));
-        assert(!cr4.insert_word(Word(16, 20, H, "2137")));
-        assert(cr4.insert_word(Word(15, 20, H, "2137")));
-        assert(!cr4.insert_word(Word(15, 16, V, "2137")));
-        assert(cr4.insert_word(Word(15, 15, V, "2137")));
-        assert(!cr4.insert_word(Word(14, 14, V, "2137")));
-        assert(!cr4.insert_word(Word(19, 19, V, "2137")));
-        assert(cr4.insert_word(Word(19, 16, V, "2137")));
-        assert(!cr4.insert_word(Word(20, 16, H, "2137")));
-        assert(!cr4.insert_word(Word(21, 16, V, "2137")));
-        assert(!cr4.insert_word(Word(21, 21, V, "2137")));
-        assert(cr4.insert_word(Word(19, 17, H, ";")));
-        assert(!cr4.insert_word(Word(19, 16, H, "2137")));
-        cout << cr4 << '\n';
+    {
+        Word word(smax - 1, smax, orientation_t::H, "UY3723173217");
+        assert(word.get_start_position() == pos_t(smax - 1, smax));
+        assert(word.get_end_position() == pos_t(smax, smax));
+        assert(word.rect_area().get_left_top() == pos_t(smax - 1, smax));
+        assert(word.rect_area().get_right_bottom() == pos_t(smax, smax));
+        assert(word.at(0) == 'U');
+        assert(word.at(1) == 'Y');
+        for(size_t i = 2; i < 12345678; i++)
+            assert(word.at(i) == DEFAULT_CHAR);
+        assert(word.at(smax) == DEFAULT_CHAR);
     }
-}   /* anonymous namespace */
+
+    {
+        Word word(smax, smax - 1, orientation_t::V, "PO          ");
+        assert(word.get_start_position() == pos_t(smax, smax - 1));
+        assert(word.get_end_position() == pos_t(smax, smax));
+        assert(word.rect_area().get_left_top() == pos_t(smax, smax - 1));
+        assert(word.rect_area().get_right_bottom() == pos_t(smax, smax));
+        assert(word.at(0) == 'P');
+        assert(word.at(1) == 'O');
+        for(size_t i = 2; i < 12345678; i++)
+            assert(word.at(i) == DEFAULT_CHAR);
+        assert(word.at(smax) == DEFAULT_CHAR);
+    }
+
+    {
+        Word word(smax - 1, smax, orientation_t::V, "A(*&^%$#@#$%^&*()(*&");
+        assert(word.get_start_position() == pos_t(smax - 1, smax));
+        assert(word.get_end_position() == pos_t(smax - 1, smax));
+        assert(word.rect_area().get_left_top() == pos_t(smax - 1, smax));
+        assert(word.rect_area().get_right_bottom() == pos_t(smax - 1, smax));
+        assert(word.at(0) == 'A');
+        for(size_t i = 1; i < 12345678; i++)
+            assert(word.at(i) == DEFAULT_CHAR);
+        assert(word.at(smax) == DEFAULT_CHAR);
+    }
+
+    {
+        Word word(0, 0, orientation_t::H, "\t\t\n\n\n\t\t");
+        assert(word.get_start_position() == pos_t(0, 0));
+        assert(word.get_end_position() == pos_t(6, 0));
+        assert(word.rect_area().get_left_top() == pos_t(0, 0));
+        assert(word.rect_area().get_right_bottom() == pos_t(6, 0));
+        for(size_t i = 7; i < 12345678; i++)
+            assert(word.at(i) == DEFAULT_CHAR);
+        assert(word.at(smax) == DEFAULT_CHAR);
+    }
+
+}
 
 int main() {
-    word_tests();
-    rect_area_tests();
-    crossword_tests();
+    statyczne_zapewnienia_word();
+    statyczne_zapewnienia_rectarea();
+    statyczne_zapewnienia_crossword();
+    proste1();
+    basic_word();
 }
