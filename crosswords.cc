@@ -174,8 +174,8 @@ dim_t RectArea::calcArea() const
 // Constructor:
 RectArea::RectArea(pos_t _topLeft, pos_t _bottomRight)
     : topLeft(std::move(_topLeft)),
-      bottomRight(std::move(_bottomRight)),
-      areaSize(calcArea()) {}
+      bottomRight(std::move(_bottomRight)) {}
+      //areaSize(calcArea()) {}
 
 /**
  * Operator *= finds coordinates of rectangle that is an intersection of
@@ -230,12 +230,15 @@ pos_t RectArea::get_right_bottom() const
 
 dim_t RectArea::size() const
 {
-    return areaSize;
+    return calcArea();
 }
 
 bool RectArea::empty() const
 {
-    return areaSize == ZERO_DIM;
+    if (bottomRight.first < topLeft.first ||
+        bottomRight.second < topLeft.second)
+        return true;
+    return false;
 }
 
 // Setters:
@@ -245,13 +248,13 @@ bool RectArea::empty() const
 void RectArea::set_left_top(pos_t p)
 {
     topLeft = p;
-    areaSize = calcArea();
+    //areaSize = calcArea();
 }
 
 void RectArea::set_right_bottom(pos_t p)
 {
     bottomRight = p;
-    areaSize = calcArea();
+    //areaSize = calcArea();
 }
 
 /**
@@ -308,7 +311,7 @@ void RectArea::embrace(pos_t p)
         bottomRight = p;
     }
 
-    areaSize = calcArea();
+    //areaSize = calcArea();
 }
 
 // -----CROSSWORD CLASS-----
