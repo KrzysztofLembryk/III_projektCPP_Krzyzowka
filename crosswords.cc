@@ -502,7 +502,7 @@ bool Crossword::collides(const Word& word) const
         {
             if (LETTER_EXISTS(x, y + word.length()) ||
                 (x > 0 && LETTER_EXISTS(x - 1, y + word.length())) ||
-                (x < SIZE_MAX && LETTER_EXISTS(x - 1, y + word.length())))
+                (x < SIZE_MAX && LETTER_EXISTS(x + 1, y + word.length())))
             { return true; }
         }
     }
