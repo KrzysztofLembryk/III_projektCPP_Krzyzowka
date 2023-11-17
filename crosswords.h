@@ -233,9 +233,9 @@ private:
         }
     };
 
-    std::vector<Word> m_words;
-    RectArea m_rectArea;
-    std::map<pos_t, Letter, reverseLexicographicalLess<pos_t>> m_letters;
+    std::vector<Word> words;
+    RectArea rectArea;
+    std::map<pos_t, Letter, reverseLexicographicalLess<pos_t>> letters;
 
 public:
     // Constructors:

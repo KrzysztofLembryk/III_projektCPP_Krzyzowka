@@ -3,11 +3,11 @@
 #include <utility>
 #include "crosswords.h"
 
-#define LETTER_EXISTS(x, y) (m_letters.count(pos_t(x, y)) != 0)
-#define LETTER(x, y) (m_letters.at(pos_t(x, y)))
-
 namespace
 {
+    #define LETTER_EXISTS(x, y) (letters.count(pos_t(x, y)) != 0)
+    #define LETTER(x, y) (letters.at(pos_t(x, y)))
+
     using std::cerr;
     using std::cin;
     using std::cout;
@@ -315,27 +315,27 @@ void RectArea::embrace(pos_t p)
 
 // Constructors:
 Crossword::Crossword(Crossword&& other) noexcept
-        : m_words(std::move(other.m_words)),
-          m_rectArea(std::move(other.m_rectArea)),
-          m_letters(std::move(other.m_letters))
+        : words(std::move(other.words)),
+          rectArea(std::move(other.rectArea)),
+          letters(std::move(other.letters))
 {
-    if (m_words.empty())
+    if (words.empty())
     {
-        m_letters.clear();
-        m_rectArea = DEFAULT_EMPTY_RECT_AREA;
+        letters.clear();
+        rectArea = DEFAULT_EMPTY_RECT_AREA;
     }
 }
 
 Crossword::Crossword(const Word& word)
-        : m_rectArea(RectArea(word.get_start_position(),
-                              word.get_end_position()))
+        : rectArea(RectArea(word.get_start_position(),
+                            word.get_end_position()))
 {
     insert_word(word);
 }
 
 Crossword::Crossword(const Word& firstWord, const std::vector<Word>& words)
-        : m_rectArea(RectArea(firstWord.get_start_position(),
-                              firstWord.get_end_position()))
+        : rectArea(RectArea(firstWord.get_start_position(),
+                            firstWord.get_end_position()))
 {
     insert_word(firstWord);
     for (const auto& word: words)
@@ -348,9 +348,9 @@ bool Crossword::insert_word(const Word& word)
 {
     if (!collides(word))
     {
-        m_words.push_back(word);
-        m_rectArea.embrace(word.get_start_position());
-        m_rectArea.embrace(word.get_end_position());
+        words.push_back(word);
+        rectArea.embrace(word.get_start_position());
+        rectArea.embrace(word.get_end_position());
 
         size_t x = word.get_start_position().first;
         size_t y = word.get_start_position().second;
@@ -361,15 +361,15 @@ bool Crossword::insert_word(const Word& word)
         {
             if (o == H)
             {
-                intersection = m_letters.count(pos_t(x + i, y)) != 0;
-                m_letters[pos_t(x + i, y)] = {
+                intersection = letters.count(pos_t(x + i, y)) != 0;
+                letters[pos_t(x + i, y)] = {
                         word.at(i),
                         o,
                         intersection};
             } else // (o == V)
             {
-                intersection = m_letters.count(pos_t(x, y + i)) != 0;
-                m_letters[pos_t(x, y + i)] = {
+                intersection = letters.count(pos_t(x, y + i)) != 0;
+                letters[pos_t(x, y + i)] = {
                         word.at(i),
                         o,
                         intersection};
@@ -382,13 +382,13 @@ bool Crossword::insert_word(const Word& word)
 
 dim_t Crossword::size() const
 {
-    return m_rectArea.size();
+    return rectArea.size();
 }
 
 dim_t Crossword::word_count() const
 {
     dim_t result = {0, 0};
-    for (const auto& word: m_words)
+    for (const auto& word: words)
     {
         if (word.get_orientation() == H)
         { result.first++; }
@@ -408,8 +408,13 @@ unsigned char toCrosswordLetter(unsigned char c)
     { return DEFAULT_CHAR; }
 }
 
-// I know it doesn't look great, but every attempt to shorten the code
-// made it significantly less readable.
+/**
+ * Checks if a word collides with any other word in the crossword.
+ * A word collides with another if they have the same orientation and
+ * and are separated by less than two spaces or they have an opposite
+ * orientation, are separated by less then two spaces and don't
+ * share a letter.
+ * */
 bool Crossword::collides(const Word& word) const
 {
     size_t x = word.get_start_position().first;
@@ -507,13 +512,13 @@ bool Crossword::collides(const Word& word) const
 // Operators:
 Crossword& Crossword::operator=(Crossword&& other) noexcept
 {
-    m_words = std::move(other.m_words);
-    m_rectArea = std::move(other.m_rectArea);
-    m_letters = std::move(other.m_letters);
-    if (m_words.empty())
+    words = std::move(other.words);
+    rectArea = std::move(other.rectArea);
+    letters = std::move(other.letters);
+    if (words.empty())
     {
-        m_letters.clear();
-        m_rectArea = DEFAULT_EMPTY_RECT_AREA;
+        letters.clear();
+        rectArea = DEFAULT_EMPTY_RECT_AREA;
     }
     return *this;
 }
@@ -525,7 +530,7 @@ Crossword& Crossword::operator+(const Crossword& other)
 
 Crossword& Crossword::operator+=(const Crossword& other)
 {
-    for (const auto& word: other.m_words)
+    for (const auto& word: other.words)
     {
         this->insert_word(word);
     }
@@ -552,12 +557,12 @@ std::ostream& operator<<(std::ostream& out, const Crossword& crossword)
         return out;
     }
 
-    pos_t start = crossword.m_rectArea.get_left_top();
-    pos_t end = crossword.m_rectArea.get_right_bottom();
+    pos_t start = crossword.rectArea.get_left_top();
+    pos_t end = crossword.rectArea.get_right_bottom();
     size_t widthMinusOne = end.first - start.first;
     // we would like to add 1 to widthMinusOne,
     // but width could already be SIZE_MAX, so we can't.
-    auto pointsItr = crossword.m_letters.cbegin();
+    auto pointsItr = crossword.letters.cbegin();
 
     out << lineOfBackgroundChars(widthMinusOne);
     // Last three characters are added in this way,
@@ -570,7 +575,7 @@ std::ostream& operator<<(std::ostream& out, const Crossword& crossword)
         out << CROSSWORD_BACKGROUND << ' ';
         for (size_t i = start.first; i <= end.first; i++)
         {
-            if (pointsItr != crossword.m_letters.cend() &&
+            if (pointsItr != crossword.letters.cend() &&
                 (*pointsItr).first == pos_t(i, j))
             {
                 out << toCrosswordLetter((*pointsItr).second.character);
@@ -579,8 +584,7 @@ std::ostream& operator<<(std::ostream& out, const Crossword& crossword)
             { out << CROSSWORD_BACKGROUND; }
             out << ' ';
             if (i == SIZE_MAX)
-            { break; } // Not the prettiest of solutions,
-                       // but if we need to print the whole range
+            { break; } // If we need to print the whole range
                        // from 0 to SIZE_MAX we will have
                        // an infinite loop without it.
         }
