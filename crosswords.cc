@@ -164,8 +164,8 @@ dim_t RectArea::calcArea() const
         return ZERO_DIM;
     }
 
-    assert((!(topLeft.first == 0 && bottomRight.first == (size_t) (-1)) &&
-            !(topLeft.second == 0 && bottomRight.second == (size_t) (-1))));
+    assert((!(topLeft.first == 0 && bottomRight.first == SIZE_MAX) &&
+            !(topLeft.second == 0 && bottomRight.second == SIZE_MAX)));
 
     return {bottomRight.first - topLeft.first + SHIFT_VAL,
             bottomRight.second - topLeft.second + SHIFT_VAL};
