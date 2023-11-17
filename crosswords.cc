@@ -538,15 +538,13 @@ Crossword& Crossword::operator+=(const Crossword& other)
 }
 
 // Auxiliary Function
-std::string lineOfBackgroundChars(size_t width)
+void lineOfBackgroundChars(std::ostream& out, size_t width)
 {
-    std::string str;
     for (size_t i = 0; i < width; i++)
     {
-        str += CROSSWORD_BACKGROUND;
-        str += ' ';
+        out << CROSSWORD_BACKGROUND;
+        out << ' ';
     }
-    return str;
 }
 
 std::ostream& operator<<(std::ostream& out, const Crossword& crossword)
@@ -564,10 +562,10 @@ std::ostream& operator<<(std::ostream& out, const Crossword& crossword)
     // but width could already be SIZE_MAX, so we can't.
     auto pointsItr = crossword.letters.cbegin();
 
-    out << lineOfBackgroundChars(widthMinusOne);
+    lineOfBackgroundChars(out, widthMinusOne);
     // Last three characters are added in this way,
     // because widthMinusOne could be equal to SIZE_MAX.
-    out << lineOfBackgroundChars(2);
+    lineOfBackgroundChars(out, 2);
     out << CROSSWORD_BACKGROUND << '\n';
 
     for (size_t j = start.second; j <= end.second; j++)
@@ -593,8 +591,8 @@ std::ostream& operator<<(std::ostream& out, const Crossword& crossword)
         { break; } // Likewise.
     }
 
-    out << lineOfBackgroundChars(widthMinusOne);
-    out << lineOfBackgroundChars(2);
+    lineOfBackgroundChars(out, widthMinusOne);
+    lineOfBackgroundChars(out, 2);
     out << CROSSWORD_BACKGROUND << '\n';
 
     return out;
