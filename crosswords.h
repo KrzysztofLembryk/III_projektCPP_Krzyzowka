@@ -128,13 +128,9 @@ private:
         // Constructors:
         WordPos() = delete;
 
-        WordPos(size_t x, size_t y, orientation_t o) : pos(x, y), orient(o)
-        {
-        }
+        WordPos(size_t x, size_t y, orientation_t o) : pos(x, y), orient(o) {}
 
-        WordPos(pos_t p, orientation_t o) : pos(std::move(p)), orient(o)
-        {
-        }
+        WordPos(pos_t p, orientation_t o) : pos(std::move(p)), orient(o) {}
 
         // Copy constructor:
         WordPos(const WordPos& w) = default;
