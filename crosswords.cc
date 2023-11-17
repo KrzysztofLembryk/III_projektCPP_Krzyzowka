@@ -65,8 +65,7 @@ pos_t Word::checkAndGetEndPos()
 Word::Word(size_t x, size_t y, orientation_t orient, std::string const& _word)
         : posAndOrient(x, y, orient),
           word(!_word.empty() ? _word : DEFAULT_WORD),
-          endPos(checkAndGetEndPos())
-{}
+          endPos(checkAndGetEndPos()) {}
 
 // Operators:
 /**
@@ -176,9 +175,7 @@ dim_t RectArea::calcArea() const
 RectArea::RectArea(pos_t _topLeft, pos_t _bottomRight)
     : topLeft(std::move(_topLeft)),
       bottomRight(std::move(_bottomRight)),
-      areaSize(calcArea())
-{
-}
+      areaSize(calcArea()) {}
 
 /**
  * Operator *= finds coordinates of rectangle that is an intersection of
@@ -257,6 +254,10 @@ void RectArea::set_right_bottom(pos_t p)
     areaSize = calcArea();
 }
 
+/**
+ * Function extends width of rectangle either to lef or right 
+ * to accommodate given point p.
+*/
 void RectArea::extend_to_left_or_right(pos_t p)
 {
     if (p.first < topLeft.first)
