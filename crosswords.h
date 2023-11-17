@@ -47,7 +47,7 @@ class RectArea
 {
 private:
     pos_t topLeft, bottomRight;
-    dim_t areaSize;
+    //dim_t areaSize;
 
     /**
      * Helping private functions:
