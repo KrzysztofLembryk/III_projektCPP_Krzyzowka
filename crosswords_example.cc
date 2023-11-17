@@ -6,6 +6,7 @@
 #include <type_traits>
 #include <functional>
 #include <limits>
+#include <random>
 
 #include "crosswords.h"
 
@@ -125,6 +126,7 @@ void basic_word() {
         assert(word.rect_area().get_left_top() == pos_t(smax, smax));
         assert(word.rect_area().get_right_bottom() == pos_t(smax, smax));
         assert(word.at(0) == 'A');
+        assert(word.length() == size_t(1));
         for(size_t i = 1; i < 12345678; i++)
             assert(word.at(i) == DEFAULT_CHAR);
         assert(word.at(smax) == DEFAULT_CHAR);
@@ -137,6 +139,7 @@ void basic_word() {
         assert(word.rect_area().get_left_top() == pos_t(smax, smax));
         assert(word.rect_area().get_right_bottom() == pos_t(smax, smax));
         assert(word.at(0) == 'X');
+        assert(word.length() == size_t(1));
         for(size_t i = 1; i < 12345678; i++)
             assert(word.at(i) == DEFAULT_CHAR);
         assert(word.at(smax) == DEFAULT_CHAR);
@@ -150,6 +153,7 @@ void basic_word() {
         assert(word.rect_area().get_right_bottom() == pos_t(smax, smax));
         assert(word.at(0) == 'U');
         assert(word.at(1) == 'Y');
+        assert(word.length() == size_t(2));
         for(size_t i = 2; i < 12345678; i++)
             assert(word.at(i) == DEFAULT_CHAR);
         assert(word.at(smax) == DEFAULT_CHAR);
@@ -163,6 +167,7 @@ void basic_word() {
         assert(word.rect_area().get_right_bottom() == pos_t(smax, smax));
         assert(word.at(0) == 'P');
         assert(word.at(1) == 'O');
+        assert(word.length() == size_t(2));
         for(size_t i = 2; i < 12345678; i++)
             assert(word.at(i) == DEFAULT_CHAR);
         assert(word.at(smax) == DEFAULT_CHAR);
@@ -175,6 +180,7 @@ void basic_word() {
         assert(word.rect_area().get_left_top() == pos_t(smax - 1, smax));
         assert(word.rect_area().get_right_bottom() == pos_t(smax - 1, smax));
         assert(word.at(0) == 'A');
+        assert(word.length() == size_t(1));
         for(size_t i = 1; i < 12345678; i++)
             assert(word.at(i) == DEFAULT_CHAR);
         assert(word.at(smax) == DEFAULT_CHAR);
@@ -186,6 +192,7 @@ void basic_word() {
         assert(word.get_end_position() == pos_t(6, 0));
         assert(word.rect_area().get_left_top() == pos_t(0, 0));
         assert(word.rect_area().get_right_bottom() == pos_t(6, 0));
+        assert(word.length() == size_t(7));
         for(size_t i = 7; i < 12345678; i++)
             assert(word.at(i) == DEFAULT_CHAR);
         assert(word.at(smax) == DEFAULT_CHAR);
@@ -193,10 +200,128 @@ void basic_word() {
 
 }
 
+void basic_rectarea() {
+
+    constexpr const size_t smax = numeric_limits<size_t>::max();
+
+    {
+        RectArea area(pos_t(0, 0), pos_t(smax, smax));
+        assert(!area.empty());
+        RectArea area2(area);
+        area2.embrace(pos_t(smax, smax));
+        area2.embrace(pos_t(0, 0));
+        area *= area2;
+        assert(!area.empty());
+        assert(!area2.empty());
+        assert(area.get_left_top() == pos_t(0, 0));
+        assert(area.get_right_bottom() == pos_t(smax, smax));
+        assert(area2.get_left_top() == pos_t(0, 0));
+        assert(area2.get_right_bottom() == pos_t(smax, smax));
+
+    }
+
+    {
+        RectArea area(pos_t(smax, 0), pos_t(0, smax));
+        assert(area.empty());
+        area *= area;
+        assert(area.empty());
+    }
+
+    {
+        RectArea area(DEFAULT_EMPTY_RECT_AREA);
+        assert(area.empty());
+        area.embrace(pos_t(216, 379));
+        assert(!area.empty());
+        assert(area.get_left_top() == pos_t(216, 379));
+        assert(area.get_right_bottom() == pos_t(216, 379));
+        assert(area.size() == dim_t(1, 1));
+    }
+}
+
+const int only_this_testcase = -1;
+
+void ostateczny_test(vector<pos_t> positions, string charset) {
+    assert(!positions.empty());
+    assert(!charset.empty());
+    const int test_count = 22345;
+    const int test_size = 15;
+    const int max_len = 7;
+    mt19937 gen;
+    auto give_char = [&] {
+        return charset[gen() % charset.size()];
+    };
+    auto give_string = [&] (int len) {
+        assert(len);
+        string res = "";
+        for(int i = 0; i < len; i++)
+            res += give_char();
+        return res;
+    };
+    auto give_position = [&]() {
+        return positions[gen() % positions.size()];
+    };
+    auto give_orientation = [&] () {
+        const vector<orientation_t> orientations = {orientation_t::H, orientation_t::V};
+        return orientations[gen() % orientations.size()];
+    };
+    auto run_testcase = [&]() {
+        vector<Crossword> cws;
+        for(int i = 0; i < test_size; i++) {
+            auto position = give_position();
+            auto orientation = give_orientation();
+            auto str = give_string(gen() % max_len + 1);
+            Word w(position.first, position.second, orientation, str);
+            cws.emplace_back(Crossword(w, {}));
+        }
+        while(!cws.empty()) {
+            if(gen() % 2 == 0)
+                cws[0] += cws.back();
+            else
+                cws[0] = cws[0] + cws.back();
+            cout << cws[0] << endl;
+            cws.pop_back();
+        }
+    };
+
+    if(only_this_testcase != -1) {
+        gen = mt19937(only_this_testcase);
+        run_testcase();
+        return;
+    }
+
+    for(int i = 0; i < test_count; i++) {
+        cout << "-----" << endl;
+        cout << "testcase " << i << endl;
+        cout << endl;
+        gen = mt19937(i);
+        run_testcase();
+    }
+}
+
 int main() {
-    statyczne_zapewnienia_word();
+    /*statyczne_zapewnienia_word();
     statyczne_zapewnienia_rectarea();
     statyczne_zapewnienia_crossword();
     proste1();
     basic_word();
+    basic_rectarea();*/
+
+    {
+        vector<pos_t> positions;
+        for(int i = 0; i < 10; i++)
+            for(int j = 0; j < 10; j++)
+                positions.emplace_back(i, j);
+
+        ostateczny_test(positions, "aAbB");
+    }
+    {
+        constexpr const size_t smax = numeric_limits<size_t>::max();
+        vector<pos_t> positions;
+        for(size_t i = 0; i < 10; i++)
+            for(size_t j = 0; j < 10; j++)
+                positions.emplace_back(smax - i, smax - j);
+
+        ostateczny_test(positions, "*^");
+    }
+
 }
