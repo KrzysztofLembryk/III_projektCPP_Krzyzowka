@@ -175,7 +175,6 @@ dim_t RectArea::calcArea() const
 RectArea::RectArea(pos_t _topLeft, pos_t _bottomRight)
     : topLeft(std::move(_topLeft)),
       bottomRight(std::move(_bottomRight)) {}
-      //areaSize(calcArea()) {}
 
 /**
  * Operator *= finds coordinates of rectangle that is an intersection of
@@ -248,13 +247,11 @@ bool RectArea::empty() const
 void RectArea::set_left_top(pos_t p)
 {
     topLeft = p;
-    //areaSize = calcArea();
 }
 
 void RectArea::set_right_bottom(pos_t p)
 {
     bottomRight = p;
-    //areaSize = calcArea();
 }
 
 /**
